@@ -13,6 +13,7 @@ INCLUDE=-Isrc/ -Iinc/
 CFLAGS = -std=gnu99 -g -Wall -Wno-unused-variable
 CFLAGS += -mlittle-endian -mthumb -mthumb-interwork -mcpu=cortex-m0
 CFLAGS += -fsingle-precision-constant -Wdouble-promotion --specs=nosys.specs
+LDFLAGS = -lc -static -mcpu=cortex-m0 -mthumb
 
 SRCDIR = src
 BUILDDIR = build
@@ -33,8 +34,11 @@ $(SOBJ): $(BUILDDIR)/%.o : $(SRCDIR)/%.S
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
 $(TARGET).bin: $(COBJ) $(SOBJ)
-	$(LD) -o $(TARGET).elf -T scripts/LinkerScript.ld $(COBJ) $(SOBJ)
+	$(LD) -o $(TARGET).elf -T scripts/link.ld $(LDFLAGS) $(COBJ) $(SOBJ)
 	$(CP) -O binary $(TARGET).elf $(TARGET).bin
+debug: flash
+	st-util > /dev/null 2>&1 &
+	arm-none-eabi-gdb -ex "tar extended-remote :4242" $(TARGET).elf
 clean:
 	rm -rf build/ *.elf *.bin
 flash: $(TARGET).bin
