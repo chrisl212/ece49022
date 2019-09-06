@@ -9,7 +9,8 @@ typedef enum {
 } sdStatus_t;
 
 int sd_init(void);
-int sd_readBlock(uint8_t *buf);
+int sd_readSector(uint32_t addr, uint8_t *buf);
+void sd_error(sdStatus_t err);
 
 #endif
 

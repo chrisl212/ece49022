@@ -28,11 +28,12 @@ FAT32 Partition
 
 Directory entries - 32 bytes each
     Short filename
-        Name - 11 bytes
-        Attrib - 1 byte
-        First cluster high - 2 bytes
-        First cluster low - 2 bytes
-        File size - 4 bytes
+        0x00 (Name) - 11 bytes
+        0x0B (Attrib) - 1 byte
+            {0, 0, archive, directory, volume ID, os, hidden, read-only}
+        0x14 (First cluster high) - 2 bytes
+        0x1A (First cluster low) - 2 bytes
+        0x1C (File size) - 4 bytes
     Long filename
     Unused
         First byte 0xE5

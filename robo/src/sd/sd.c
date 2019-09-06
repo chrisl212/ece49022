@@ -1,5 +1,8 @@
 #include "stm32f0xx.h"
+#include "ui/ui.h"
 #include "sd.h"
+
+#define SECTOR (512)
 
 static void _spi_init(void) {
     //PB12 = NSS, PB13 = SCK, PB14 = MISO, PB15 = MOSI
@@ -58,8 +61,39 @@ int sd_init(void) {
     return SD_OKAY;
 }
 
-int sd_readBlock(uint8_t *buf) {
+int sd_readSector(uint32_t addr, uint8_t *buf) {
+    int i;
+    uint8_t byte;
+
+    GPIOB->ODR &= ~(1 << 12);
+    _spi_sendByte(0x17 | 0x40); //send CMD17, prefixed with '01'
+    _spi_sendWord(addr); //send addr
+    _spi_sendByte(0x00); //send CRC (N/A)
+    while (!(SPI2->SR & SPI_SR_RXNE)); //wait for byte to be received
+    byte = (uint8_t)SPI2->DR;
+
+    //3 extra bytes for token, CRC
+    for (i = 0; i < SECTOR+3; i++) {
+        while (!(SPI2->SR & SPI_SR_RXNE));
+        byte = (uint8_t)SPI2->DR;
+        if (i >= 1 && i <= SECTOR) {
+            buf[i-1] = byte;
+        }
+    }
+
+    GPIOB->ODR |= 1 << 12;
 
     return SD_OKAY;
+}
+
+void sd_error(sdStatus_t err) {
+    switch (err) {
+        case SD_OKAY:
+            ui_writeLine(0, "SD: no error");
+            break;
+        case SD_INIT_FAIL:
+            ui_writeLine(0, "SD: init fail");
+            break;
+    }
 }
 
