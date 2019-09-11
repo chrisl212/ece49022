@@ -1,7 +1,7 @@
 TARGET=robo
 
 CC=arm-none-eabi-gcc
-LD=arm-none-eabi-gcc
+LD=arm-none-eabi-ld
 AR=arm-none-eabi-ar
 AS=arm-none-eabi-as
 CP=arm-none-eabi-objcopy
@@ -34,7 +34,7 @@ $(SOBJ): $(BUILDDIR)/%.o : $(SRCDIR)/%.S
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
 $(TARGET).bin: $(COBJ) $(SOBJ)
-	$(LD) -o $(TARGET).elf -T scripts/link.ld $(LDFLAGS) $(COBJ) $(SOBJ)
+	$(CC) -o $(TARGET).elf -T scripts/link.ld $(LDFLAGS) $(COBJ) $(SOBJ)
 	$(CP) -O binary $(TARGET).elf $(TARGET).bin
 debug: flash
 	st-util > /dev/null 2>&1 &

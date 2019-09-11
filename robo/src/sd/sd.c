@@ -2,15 +2,24 @@
 #include "ui/ui.h"
 #include "sd.h"
 
+#define CS (9)
+#define SCK (13)
+#define MISO (14)
+#define MOSI (15)
+#define CLR_CS (GPIOB->ODR &= ~(1 << CS))
+#define SET_CS (GPIOB->ODR |= 1 << CS)
 #define SECTOR (512)
 
 static void _spi_init(void) {
-    //PB12 = NSS, PB13 = SCK, PB14 = MISO, PB15 = MOSI
+    //PB09 = NSS, PB13 = SCK, PB14 = MISO, PB15 = MOSI
     RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-    GPIOB->MODER |= (0x1 << (2*12)) + (0x2 << (2*13)) + (0x2 << (2*14)) + (0x2 << (2*15));
-    GPIOB->ODR |= 1 << 12;
+    GPIOB->MODER |= (0x1 << (2*CS)) + (0x2 << (2*SCK)) + (0x2 << (2*MISO)) + (0x2 << (2*MOSI));
+    GPIOB->PUPDR |= 0x1 << (2*MOSI);
+    SET_CS;
     //set SPI2 to 375 kHz
-    SPI2->CR1 |= SPI_CR1_BR_2 + SPI_CR1_BR_1 + SPI_CR1_MSTR;
+    RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+    SPI2->CR1 |= SPI_CR1_BR_2 + SPI_CR1_BR_1 + SPI_CR1_MSTR + SPI_CR1_SSM + SPI_CR1_SSI;
+    SPI2->CR2 |= SPI_CR2_FRXTH + SPI_CR2_SSOE;
     SPI2->CR1 |= SPI_CR1_SPE;
 }
 
@@ -31,13 +40,21 @@ static void _spi_sendWord(uint32_t word) {
 static uint8_t _spi_sendCommand(uint8_t idx, uint32_t arg) {
     uint8_t resp;
 
-    GPIOB->ODR &= ~(1 << 12);
+    _spi_sendByte(0xFF);
+    CLR_CS;
+    _spi_sendByte(0xFF);
     _spi_sendByte(idx | 0x40); //send index, prefixed with '01'
     _spi_sendWord(arg); //send argument
-    _spi_sendByte(0x00); //send CRC (N/A)
+    if (idx == 0) {
+        _spi_sendByte(0x95);
+    } else {
+        _spi_sendByte(0x00); //send CRC (N/A)
+    }
     while (!(SPI2->SR & SPI_SR_RXNE)); //wait for byte to be received
     resp = (uint8_t)SPI2->DR;
-    GPIOB->ODR |= 1 << 12;
+    _spi_sendByte(0xFF);
+    SET_CS;
+    _spi_sendByte(0xFF);
     return resp;
 }
 
@@ -47,14 +64,23 @@ void _pulse(void) {
     //send at least 74 (80) clock pulses following power on
     //NSS remains high
     for (i = 0; i < 10; i++) {
-        _spi_sendByte(0x00);
+        _spi_sendByte(0xFF);
     }
 }
 
+void delay(int n) { while (n--); }
+
 int sd_init(void) {
+    int res;
+
     _spi_init();
     _pulse();
-    if (_spi_sendCommand(0, 0) != 0x01) {
+    while (1) {
+        _spi_sendCommand(0, 0);
+        delay(50000);
+    }
+    if (res != 0x01) {
+        ui_writeFormat(1, "%d", res);
         return SD_INIT_FAIL;
     }
 
@@ -65,7 +91,7 @@ int sd_readSector(uint32_t addr, uint8_t *buf) {
     int i;
     uint8_t byte;
 
-    GPIOB->ODR &= ~(1 << 12);
+    CLR_CS;
     _spi_sendByte(0x17 | 0x40); //send CMD17, prefixed with '01'
     _spi_sendWord(addr); //send addr
     _spi_sendByte(0x00); //send CRC (N/A)
@@ -81,7 +107,7 @@ int sd_readSector(uint32_t addr, uint8_t *buf) {
         }
     }
 
-    GPIOB->ODR |= 1 << 12;
+    SET_CS;
 
     return SD_OKAY;
 }
