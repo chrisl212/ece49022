@@ -1,24 +1,6 @@
 #include "stm32f0xx.h"
 #include "fat.h"
-#include "sd/sd.h"
 #include "ui/ui.h"
-
-#define SECTOR (512)
-#define SHORTNAME (11)
-#define ARCHIVE (0x20)
-#define DIRECTORY (0x10)
-#define VOL_ID (0x08)
-#define OS (0x04)
-#define HIDDEN (0x02)
-#define RO (0x01)
-
-struct _fatFile {
-    char name[SHORTNAME + 1];
-    uint32_t offset;
-    uint8_t attrib;
-    uint32_t firstCluster;
-    uint32_t size;
-};
 
 struct {
     uint16_t bytesPerSector;
@@ -28,6 +10,8 @@ struct {
     uint32_t sectorsPerFAT;
     uint32_t rootDirectoryCluster;
     uint16_t signature;
+    uint32_t lbaFAT;
+    uint32_t lbaCluster;
 } _volumeID;
 
 struct {
@@ -43,13 +27,20 @@ static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
     uint32_t res = 0;
 
     for (i = 0; i < shifts; i++) {
-        res |= ((uint32_t)buf[start+i])  << (8 * ((shifts - 1) - i));
+        res |= ((uint32_t)buf[start+i])  << (8 * i);
     }
     return res;
 }
 
-static int _readMBR(void) {
-    sd_readSector(0x0, buf);
+static int _readMBR(sdCard_t card) {
+    int status;
+
+    status = sd_readSector(card, 0x0, buf);
+    if (status != SD_OKAY) {
+        sd_error(status);
+        return FAT_MBR;
+    }
+
     _partInfo.type = buf[450];
     _partInfo.lba = _combine(32, buf, 454);
 
@@ -63,8 +54,15 @@ static int _readMBR(void) {
     return FAT_OKAY;
 }
 
-static int _readVolumeID(void) {
-    sd_readSector(_partInfo.lba, buf);
+static int _readVolumeID(sdCard_t card) {
+    int status;
+
+    status = sd_readSector(card, _partInfo.lba, buf);
+    if (status != SD_OKAY) {
+        sd_error(status);
+        return FAT_VOLID;
+    }
+
     _volumeID.bytesPerSector = _combine(16, buf, 0x0B);
     _volumeID.sectorsPerCluster = buf[0x0D];
     _volumeID.reservedSectors = _combine(16, buf, 0x0E);
@@ -72,18 +70,20 @@ static int _readVolumeID(void) {
     _volumeID.sectorsPerFAT = _combine(32, buf, 0x24);
     _volumeID.rootDirectoryCluster = _combine(32, buf, 0x2C);
     _volumeID.signature = _combine(16, buf, 0x1FE);
-    if (_volumeID.signature != 0x55AA) {
+    _volumeID.lbaFAT = _partInfo.lba + _volumeID.reservedSectors;
+    _volumeID.lbaCluster = _volumeID.lbaFAT + (_volumeID.FATs * _volumeID.sectorsPerFAT);
+    if (_volumeID.signature != 0xAA55) {
         return FAT_VOLID;
     }
     return FAT_OKAY;
 }
 
 int fat_init(fatFile_t *root) {
-    sd_init();
-    if (_readMBR()) {
+    sd_init(&root->card);
+    if (_readMBR(root->card)) {
         return FAT_MBR;
     }
-    if (_readVolumeID()) {
+    if (_readVolumeID(root->card)) {
         return FAT_VOLID;
     }
     root->name[0] = '/';
@@ -96,6 +96,22 @@ int fat_init(fatFile_t *root) {
 }
 
 int fat_getNextFile(fatFile_t *directory, fatFile_t *next) {
+    int status, i;
+    int idx;
+    uint32_t lba = _volumeID.lbaCluster + (directory->firstCluster - 2) * _volumeID.sectorsPerCluster;
+
+    status = sd_readSector(directory->card, lba, buf);
+
+    do {
+        idx = directory->offset++ * 32;
+    } while (buf[idx] == 0 || buf[idx] == 0xE5);
+
+    for (i = 0; i < 11; i++) {
+        next->name[i] = buf[idx + i];
+    }
+    next->name[11] = 0;
+    next->attrib = buf[idx + 11];
+
     return FAT_OKAY;
 }
 

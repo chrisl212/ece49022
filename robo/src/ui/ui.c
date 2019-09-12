@@ -1,12 +1,14 @@
 #include <stdarg.h>
 #include <string.h>
 #include "state/state.h"
+#include "fat/fat.h"
 #include "stm32f0xx.h"
 #include "ui.h"
 
 #define ROW (2)
 #define COL (16)
 
+fatFile_t root;
 char lines[ROW][COL] = {0};
 int z = 0;
 
@@ -23,14 +25,17 @@ void _setupTIM3(void) {
 }
 
 void TIM3_IRQHandler(void) {
+    fatFile_t next;
     if (state == STATE_SELECT) {
         if (GPIOC->IDR & (1 << 7)) {
             z--;
         } else {
+            fat_getNextFile(&root, &next);
+            ui_writeFormat(0, "0x%x", next.attrib);
+            ui_writeFormat(1, "%s", next.name);
             z++;
         }
         TIM3->SR &= ~(TIM_SR_CC1IF);
-        ui_writeFormat(1, "num: %d", z);
     }
 }
 
@@ -58,6 +63,7 @@ void ui_setup(void) {
     _SPIWrite(0x0006); //set entry mode
     ui_writeLine(0, "");
     _setupTIM3();
+    fat_init(&root);
 }
 
 void ui_writeLine(int line, char *str) {
@@ -77,8 +83,8 @@ static int _pow(int a, int b) {
     return res;
 }
 
-static int _writeInt(int i) {
-    int digs, tmp, div, j;
+static int _writeInt(int i, int b) {
+    int digs, tmp, div, j, quo;
    
     j = 0;
     if (i < 0) {
@@ -90,14 +96,15 @@ static int _writeInt(int i) {
     tmp = i;
 
     while (tmp) {
-        tmp /= 10;
+        tmp /= b;
         digs++;
     }
 
     tmp = i;
     while (digs) {
-        div = _pow(10, --digs);
-        _SPIWrite(0x0200 | ('0' + tmp/div));
+        div = _pow(b, --digs);
+        quo = tmp/div;
+        _SPIWrite(0x0200 | ((quo > 9) ? 'A' + (quo-10) : '0' + quo));
         tmp %= div;
         j++;
     }
@@ -117,7 +124,10 @@ void ui_writeFormat(int line, char *fmt, ...) {
             fmt++;
             switch (*fmt) {
                 case 'd':
-                    i += _writeInt(va_arg(lst, int));
+                    i += _writeInt(va_arg(lst, int), 10);
+                    break;
+                case 'x':
+                    i += _writeInt(va_arg(lst, int), 16);
                     break;
                 case 's':
                     s = va_arg(lst, char *);
