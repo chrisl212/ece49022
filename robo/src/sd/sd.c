@@ -14,7 +14,6 @@ static void _spi_init(void) {
     //PB09 = NSS, PB13 = SCK, PB14 = MISO, PB15 = MOSI
     RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
     GPIOB->MODER |= (0x1 << (2*CS)) + (0x2 << (2*SCK)) + (0x2 << (2*MISO)) + (0x2 << (2*MOSI));
-    GPIOB->PUPDR |= 0x1 << (2*MOSI);
     SET_CS;
     //set SPI2 to 375 kHz
     RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
@@ -23,9 +22,11 @@ static void _spi_init(void) {
     SPI2->CR1 |= SPI_CR1_SPE;
 }
 
-static void _spi_sendByte(uint8_t byte) {
+static uint8_t _spi_sendByte(uint8_t byte) {
     while (!(SPI2->SR & SPI_SR_TXE)); //wait for TX to finish
     *((uint8_t *)&SPI2->DR) = (uint8_t)byte; //data packing
+    while (!(SPI2->SR & SPI_SR_RXNE)); //wait for TX to finish
+    return *(uint8_t *)&(SPI2->DR);
 }
 
 static void _spi_sendWord(uint32_t word) {
@@ -37,21 +38,23 @@ static void _spi_sendWord(uint32_t word) {
     }
 }
 
+static void delay(int n) { while (n--); }
+
 static uint8_t _spi_sendCommand(uint8_t idx, uint32_t arg) {
     uint8_t resp;
-
+    
     _spi_sendByte(0xFF);
     CLR_CS;
     _spi_sendByte(0xFF);
+    
     _spi_sendByte(idx | 0x40); //send index, prefixed with '01'
     _spi_sendWord(arg); //send argument
     if (idx == 0) {
-        _spi_sendByte(0x95);
+        resp = _spi_sendByte(0x95);
     } else {
         _spi_sendByte(0x00); //send CRC (N/A)
     }
-    while (!(SPI2->SR & SPI_SR_RXNE)); //wait for byte to be received
-    resp = (uint8_t)SPI2->DR;
+    
     _spi_sendByte(0xFF);
     SET_CS;
     _spi_sendByte(0xFF);
@@ -68,16 +71,15 @@ void _pulse(void) {
     }
 }
 
-void delay(int n) { while (n--); }
-
 int sd_init(void) {
     int res;
 
     _spi_init();
-    _pulse();
     while (1) {
-        _spi_sendCommand(0, 0);
-        delay(50000);
+        _pulse();
+        res = _spi_sendCommand(0, 0);
+        ui_writeFormat(1, "%d", res);
+        delay(10000);
     }
     if (res != 0x01) {
         ui_writeFormat(1, "%d", res);
