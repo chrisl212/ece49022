@@ -20,6 +20,15 @@ struct {
 } _partInfo;
 
 uint8_t buf[SECTOR];
+uint32_t lbaLast = 0xFFFFFFFF;
+
+static int _fat_readSector(sdCard_t card, uint32_t lba) {
+    if (lba != lbaLast) {
+        lbaLast = lba;
+        return sd_readSector(card, lba, buf);
+    }
+    return SD_OKAY;
+}
 
 static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
     int i;
@@ -35,7 +44,7 @@ static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
 static int _readMBR(sdCard_t card) {
     int status;
 
-    status = sd_readSector(card, 0x0, buf);
+    status = _fat_readSector(card, 0x0);
     if (status != SD_OKAY) {
         sd_error(status);
         return FAT_MBR;
@@ -57,7 +66,7 @@ static int _readMBR(sdCard_t card) {
 static int _readVolumeID(sdCard_t card) {
     int status;
 
-    status = sd_readSector(card, _partInfo.lba, buf);
+    status = _fat_readSector(card, _partInfo.lba);
     if (status != SD_OKAY) {
         sd_error(status);
         return FAT_VOLID;
@@ -95,27 +104,124 @@ int fat_init(fatFile_t *root) {
     return FAT_OKAY;
 }
 
-int fat_getNextFile(fatFile_t *directory, fatFile_t *next) {
-    int status, i;
-    int idx;
-    uint32_t lba = _volumeID.lbaCluster + (directory->firstCluster - 2) * _volumeID.sectorsPerCluster;
+static uint32_t _clusterToLBA(uint32_t cluster) {
+    return _volumeID.lbaCluster + (cluster - 2) * _volumeID.sectorsPerCluster;
+}
 
-    status = sd_readSector(directory->card, lba, buf);
+static uint32_t _fat_getNthCluster(sdCard_t card, uint32_t first, uint16_t n) {
+    uint32_t lba = _volumeID.lbaFAT;
+    uint32_t cluster = first;
 
-    do {
-        idx = directory->offset++ * 32;
-    } while (buf[idx] == 0 || buf[idx] == 0xE5);
-
-    for (i = 0; i < 11; i++) {
-        next->name[i] = buf[idx + i];
+    if (cluster > SECTOR * _volumeID.sectorsPerFAT) {
+        lba += 1;
     }
-    next->name[11] = 0;
-    next->attrib = buf[idx + 11];
+    _fat_readSector(card, lba);
+
+    while (n--) {
+        cluster = _combine(32, buf, cluster*4);
+        if (cluster == 0xFFFFFFF) {
+            break;
+        }
+        if (cluster > SECTOR * _volumeID.sectorsPerFAT) {
+            lba += 1;
+            _fat_readSector(card, lba);
+        }
+    }
+    return cluster;
+}
+
+int fat_getPreviousFile(fatFile_t *dir, fatFile_t *next) {
+    int status;
+    uint32_t offsetInitial = dir->offset;
+    int32_t offsetNew = 0;
+    uint32_t cnt;
+    
+    if (offsetInitial == 0) {
+        return fat_getNextFile(dir, next);
+    }
+
+    while (dir->offset == offsetInitial) {
+        offsetNew -= 32;
+        dir->offset = offsetInitial + offsetNew;
+        status = fat_getNextFile(dir, next);
+        if (-offsetNew >= offsetInitial) {
+            return status;
+        }
+    }
+    return status;
+}
+
+int fat_getNextFile(fatFile_t *dir, fatFile_t *next) {
+    uint8_t entry[32];
+    uint8_t valid = 0;
+    int i = 0;
+
+    while (!valid) {
+        fat_read(dir, entry, 32);
+        if (entry[0] == 0) {
+            dir->offset = 0;
+        } else if (entry[0] != 0xE5 && !(entry[SHORTNAME] & VOL_ID)) {
+            valid = 1;
+        }
+    }
+    for (i = 0; i < SHORTNAME; i++) {
+        next->name[i] = entry[i];
+    }
+    next->name[SHORTNAME-1] = 0;
+    next->offset = 0;
+    next->attrib = entry[SHORTNAME];
+    next->firstCluster = (_combine(16, entry, 0x14) << 16) | _combine(16, entry, 0x1A);
+    next->size = _combine(32, entry, 0x1C);
+    next->card = dir->card;
 
     return FAT_OKAY;
 }
 
-int fat_read(fatFile_t *f, uint8_t *buf, uint8_t len) {
+int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
+    uint32_t clusterIdx, sectorIdx, byteIdx, lba = _clusterToLBA(f->firstCluster);
+    int status, i = 0;
+    
+    clusterIdx = f->offset / (SECTOR * _volumeID.sectorsPerCluster);
+    sectorIdx = (f->offset / SECTOR) - (clusterIdx * _volumeID.sectorsPerCluster);
+    byteIdx = f->offset % SECTOR;
+    
+    if (f->size == 0 && !(f->attrib & DIRECTORY)) {
+        return FAT_EOF;
+    }
+
+    if (clusterIdx > 0) {
+        lba = _clusterToLBA(_fat_getNthCluster(f->card, f->firstCluster, clusterIdx));
+    }
+    lba += sectorIdx;
+
+    //ui_writeFormat(1, "%d %d %d %d", byteIdx, sectorIdx, clusterIdx, lba);
+    status = _fat_readSector(f->card, lba);
+    if (status != SD_OKAY) {
+        return FAT_UNKNOWN;
+    }
+    for (i = 0; i < len; i++) {
+        b[i] = buf[byteIdx++];
+        f->offset++;
+
+        if (f->offset >= f->size && !(f->attrib & DIRECTORY)) {
+            f->offset = 0;
+            return FAT_EOF;
+        }
+        if (byteIdx >= SECTOR) {
+            sectorIdx++;
+            if (sectorIdx >= _volumeID.sectorsPerCluster) {
+                lba = _clusterToLBA(_fat_getNthCluster(f->card, clusterIdx++, 1));
+                sectorIdx = 0;
+            } else {
+                lba += 1;
+            }
+            status = _fat_readSector(f->card, lba);
+            if (status != SD_OKAY) {
+                return FAT_UNKNOWN;
+            }
+            byteIdx = 0;
+        }
+    }
     return FAT_OKAY;
 }
 
@@ -129,6 +235,12 @@ void fat_error(fatStatus_t err) {
             break;
         case FAT_VOLID:
             ui_writeLine(0, "FAT: invalid VOL");
+            break;
+        case FAT_EOF:
+            ui_writeLine(0, "FAT: eof");
+            break;
+        case FAT_UNKNOWN:
+            ui_writeLine(0, "FAT: unknown");
             break;
     }
 }

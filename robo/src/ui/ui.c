@@ -26,17 +26,20 @@ void _setupTIM3(void) {
 
 void TIM3_IRQHandler(void) {
     fatFile_t next;
+    char buf[17];
+    int i;
+
+    ui_writeLine(0, "Select a design:");
     if (state == STATE_SELECT) {
         if (GPIOC->IDR & (1 << 7)) {
-            z--;
+            fat_getPreviousFile(&root, &next);
         } else {
             fat_getNextFile(&root, &next);
-            ui_writeFormat(0, "0x%x", next.attrib);
-            ui_writeFormat(1, "%s", next.name);
-            z++;
         }
-        TIM3->SR &= ~(TIM_SR_CC1IF);
+        ui_writeFormat(1, "%s", next.name);
     }
+    
+    TIM3->SR &= ~(TIM_SR_CC1IF);
 }
 
 static void _setupSPI(void) {
@@ -64,6 +67,7 @@ void ui_setup(void) {
     ui_writeLine(0, "");
     _setupTIM3();
     fat_init(&root);
+    TIM3_IRQHandler();
 }
 
 void ui_writeLine(int line, char *str) {

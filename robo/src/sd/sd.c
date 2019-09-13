@@ -50,7 +50,7 @@ static uint32_t _spi_readWord(void) {
     return resp;
 }
 
-void delay(int n) { while (n--); }
+static void delay(int n) { while (n--); }
 
 static uint8_t _spi_sendCommand(uint8_t idx, uint32_t arg, uint8_t a, uint32_t *ocr) {
     uint8_t crc = 0x00;
