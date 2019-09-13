@@ -2,6 +2,8 @@
 #include "fat.h"
 #include "ui/ui.h"
 
+#define TIMEOUT (5)
+
 struct {
     uint16_t bytesPerSector;
     uint8_t sectorsPerCluster;
@@ -88,7 +90,12 @@ static int _readVolumeID(sdCard_t card) {
 }
 
 int fat_init(fatFile_t *root) {
-    sd_init(&root->card);
+    int timeout = 0;
+
+    while (sd_init(&root->card) != SD_OKAY && timeout++ < TIMEOUT);
+    if (timeout == TIMEOUT) {
+        return FAT_TIMEOUT;
+    }
     if (_readMBR(root->card)) {
         return FAT_MBR;
     }
@@ -228,19 +235,22 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
 void fat_error(fatStatus_t err) {
     switch (err) {
         case FAT_OKAY:
-            ui_writeLine(0, "FAT: no error");
+            //ui_writeLine(0, "FAT: no error");
             break;
         case FAT_MBR:
-            ui_writeLine(0, "FAT: invalid MBR");
+            //ui_writeLine(0, "FAT: invalid MBR");
             break;
         case FAT_VOLID:
-            ui_writeLine(0, "FAT: invalid VOL");
+            //ui_writeLine(0, "FAT: invalid VOL");
             break;
         case FAT_EOF:
-            ui_writeLine(0, "FAT: eof");
+            //ui_writeLine(0, "FAT: eof");
+            break;
+        case FAT_TIMEOUT:
+            //ui_writeLine(0, "FAT: timeout");
             break;
         case FAT_UNKNOWN:
-            ui_writeLine(0, "FAT: unknown");
+            //ui_writeLine(0, "FAT: unknown");
             break;
     }
 }

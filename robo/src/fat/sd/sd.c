@@ -4,7 +4,7 @@
 #include "sd.h"
 
 #define TIMEOUT (100)
-#define CS (9)
+#define CS (12)
 #define SCK (13)
 #define MISO (14)
 #define MOSI (15)
@@ -199,19 +199,19 @@ int sd_readSector(sdCard_t card, uint32_t addr, uint8_t *buf) {
 void sd_error(sdStatus_t err) {
     switch (err) {
         case SD_OKAY:
-            ui_writeLine(0, "SD: no error");
+//            ui_writeLine(0, "SD: no error");
             break;
         case SD_UNRECOGNIZED:
-            ui_writeLine(0, "SD: unrecognized");
+//            ui_writeLine(0, "SD: unrecognized");
             break;
         case SD_UNKNOWN_VERSION:
-            ui_writeLine(0, "SD: version err");
+//            ui_writeLine(0, "SD: version err");
             break;
         case SD_TIMEOUT:
-            ui_writeLine(0, "SD: timeout");
+//            ui_writeLine(0, "SD: timeout");
             break;
         case SD_READ_ERR:
-            ui_writeLine(0, "SD: read err");
+//            ui_writeLine(0, "SD: read err");
             break;
     }
 }

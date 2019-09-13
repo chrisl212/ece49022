@@ -1,6 +1,5 @@
 #include "ui/ui.h"
 #include "state/state.h"
-#include "sd/sd.h"
 #include "stm32f0xx.h"
 #include "fat/fat.h"
 

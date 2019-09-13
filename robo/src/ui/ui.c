@@ -3,6 +3,11 @@
 #include "state/state.h"
 #include "fat/fat.h"
 #include "stm32f0xx.h"
+#include "ili9341/ili9341.h"
+#include "text/text.h"
+#include "colors/colors.h"
+#include "gui/gui.h"
+#include "touch/touch.h"
 #include "ui.h"
 
 #define ROW (2)
@@ -11,7 +16,7 @@
 fatFile_t root;
 char lines[ROW][COL] = {0};
 int z = 0;
-
+/*
 void _setupTIM3(void) {
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
     GPIOC->MODER |= (0x2 << (2*6)) + (0x0 << (2*7));
@@ -25,18 +30,16 @@ void _setupTIM3(void) {
 }
 
 void TIM3_IRQHandler(void) {
-    fatFile_t next;
     char buf[17];
     int i;
 
-    ui_writeLine(0, "Select a design:");
     if (state == STATE_SELECT) {
         if (GPIOC->IDR & (1 << 7)) {
             fat_getPreviousFile(&root, &next);
         } else {
             fat_getNextFile(&root, &next);
         }
-        ui_writeFormat(1, "%s", next.name);
+        text_writeFormatAtPoint(f_12x16, 20, 40, LEFT, "%s", next.name);
     }
     
     TIM3->SR &= ~(TIM_SR_CC1IF);
@@ -55,21 +58,37 @@ static void _setupSPI(void) {
 static void _SPIWrite(unsigned int data) {
     while ((SPI1->SR & SPI_SR_TXE) != 2);
     SPI1->DR = data;
-}
+}*/
 
 void ui_setup(void) {
-    _setupSPI();
-    _SPIWrite(0x0038); //set function
-    _SPIWrite(0x000C); //turn on display
-    _SPIWrite(0x0001); //clear display
-    _SPIWrite(0x0002); //return home
-    _SPIWrite(0x0006); //set entry mode
-    ui_writeLine(0, "");
-    _setupTIM3();
+    button_t button;
+    
+    ili9341_init();
+    ili9341_fillLCD(WHITE);
+    text_setColors(BLACK, WHITE);
+    text_writeFormatAtPoint(f_12x16, 20, 20, LEFT, "Select a design:");
+    button = button_create("Click me", f_08x08, color16(0xDDDDDDD));
+    button_draw(&button, 100, 100);
+
+//    _setupTIM3();
     fat_init(&root);
-    TIM3_IRQHandler();
+    touch_init();
+//    TIM3_IRQHandler();
 }
 
+void ui_touchEvent(int x, int y) {
+    fatFile_t next;
+    if (state == STATE_SELECT) {
+        if (x < WIDTH / 2) {
+            fat_getPreviousFile(&root, &next);
+        } else {
+            fat_getNextFile(&root, &next);
+        }
+        text_writeFormatAtPoint(f_12x16, 20, 40, LEFT, "%s", next.name);
+    }
+}
+
+/*
 void ui_writeLine(int line, char *str) {
     _SPIWrite(0x0080 + 0x40*line);
     int l = strlen(str);
@@ -154,4 +173,4 @@ void ui_writeFormat(int line, char *fmt, ...) {
         _SPIWrite(0x0200 | ' ');
     }
     va_end(lst);    
-}
+}*/

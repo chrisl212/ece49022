@@ -18,6 +18,7 @@ typedef enum {
     FAT_MBR,
     FAT_VOLID,
     FAT_EOF,
+    FAT_TIMEOUT,
     FAT_UNKNOWN
 } fatStatus_t;
 
