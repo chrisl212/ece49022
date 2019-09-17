@@ -3,8 +3,8 @@
 
 #include "colors/colors.h"
 #include "ui/text/text.h"
-#include "ui/gui/shapes/shapes.h"
 #include "ui/gui/node/node.h"
+#include "ui/gui/shapes/shapes.h"
 
 typedef struct {
     node_t node;

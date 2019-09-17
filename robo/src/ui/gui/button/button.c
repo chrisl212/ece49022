@@ -1,4 +1,4 @@
-#include <string.h>
+#include "std/std.h"
 #include "button.h"
 
 #define PADDING (20)

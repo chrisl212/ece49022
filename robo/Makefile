@@ -12,7 +12,7 @@ SF=st-flash
 INCLUDE=-Isrc/ -Iinc/
 CFLAGS = -std=gnu99 -g -Wall -Wno-unused-variable
 CFLAGS += -mlittle-endian -mthumb -mthumb-interwork -mcpu=cortex-m0
-CFLAGS += -fsingle-precision-constant -Wdouble-promotion --specs=nosys.specs
+CFLAGS += -fsingle-precision-constant --specs=nosys.specs -Wno-builtin-declaration-mismatch
 LDFLAGS = -lc -static -mcpu=cortex-m0 -mthumb
 
 SRCDIR = src
@@ -34,7 +34,7 @@ $(SOBJ): $(BUILDDIR)/%.o : $(SRCDIR)/%.S
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
 $(TARGET).bin: $(COBJ) $(SOBJ)
-	$(CC) -o $(TARGET).elf -T scripts/link.ld $(LDFLAGS) $(COBJ) $(SOBJ)
+	$(CC) -o $(TARGET).elf -T scripts/link.ld $(COBJ) $(SOBJ) $(LDFLAGS) 
 	$(CP) -O binary $(TARGET).elf $(TARGET).bin
 debug: flash
 	st-util > /dev/null 2>&1 &

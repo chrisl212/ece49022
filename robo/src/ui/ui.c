@@ -13,41 +13,47 @@
 #define ROW (2)
 #define COL (16)
 
-fatFile_t root, currentFile;
-char lines[ROW][COL] = {0};
-int z = 0;
-button_t prevButton, nextButton;
-statusBar_t statusBar;
-preview_t prev;
+fatFile_t root;
+welcomeWindow_t welcomeWindow;
+selectWindow_t selectWindow;
+navWindow_t navWindow;
 
 void ui_setup(void) {
     ili9341_init();
-    ili9341_fillLCD(WHITE);
-    text_setColors(BLACK, WHITE);
-    statusBar = statusBar_create("RoboPicasso");
-    statusBar.batteryPct = 25;
-    statusBar_draw(&statusBar, 0, 0);
-    
-    prevButton = button_create("Prev", f_12x16, color16(0xDDDDDDD));
-    button_draw(&prevButton, 0, HEIGHT - prevButton.node.height);
-
-    nextButton = button_create("Next", f_12x16, color16(0xDDDDDDD));
-    button_draw(&nextButton, WIDTH - nextButton.node.width, HEIGHT - nextButton.node.height);
 
     fat_init(&root);
+    
+    welcomeWindow = welcomeWindow_create();
+    selectWindow = selectWindow_create(root);
+    navWindow = navWindow_create();
+
+    ui_draw();
     touch_init();
 }
 
+void ui_draw(void) {
+    if (state_get() == STATE_WELCOME) {
+        welcomeWindow_draw(&welcomeWindow);
+    } else if (state_get() == STATE_SELECT) {
+        selectWindow_draw(&selectWindow);
+    } else if (state_get() == STATE_NAV) {
+        navWindow_draw(&navWindow);
+    } else if (state_get() == STATE_DONE) {
+        ili9341_fillLCD(WHITE);
+        text_writeTextAtPoint(f_12x16, "Done!", 0, 160, CENTER);
+    }
+}
+
 void ui_touchEvent(int x, int y) {
-    if (state == STATE_SELECT) {
-        if (node_containsPoint((node_t *)&nextButton, x, y)) {
-            fat_getNextFile(&root, &currentFile);
-        } else if (node_containsPoint((node_t *)&prevButton, x, y)) {
-            fat_getPreviousFile(&root, &currentFile);
-        }
-        prev = preview_create(currentFile);
-        preview_draw(&prev, (WIDTH - prev.node.width)/2, (HEIGHT - prev.node.height)/2);
-        text_writeFormatAtPoint(f_12x16, 0, statusBar.node.height+5, CENTER, "Design: %s", currentFile.name);
+    if (state_get() == STATE_WELCOME) {
+        welcomeWindow.node.touchEvent((void *)&welcomeWindow, x, y);
+    } else if (state_get() == STATE_SELECT) {
+        selectWindow.node.touchEvent((void *)&selectWindow, x, y);
+    } else if (state_get() == STATE_NAV) {
+        navWindow.node.touchEvent((void *)&navWindow, x, y);
+    } else if (state_get() == STATE_DONE) {
+        state_set(STATE_WELCOME);
+        ui_draw();
     }
 }
 

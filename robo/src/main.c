@@ -4,8 +4,8 @@
 #include "fat/fat.h"
 
 int main(void) {
+    state_setup();
     ui_setup();
-    state_init();
     
     while (1) asm("wfi");
     return 0;

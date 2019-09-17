@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #include "stm32f0xx.h"
 #include "touch.h"
 #include "ui/text/text.h"
@@ -33,7 +34,7 @@ static uint16_t _spi_writeWord(uint8_t word) {
     return res;
 }
 
-static void _readCoord() {
+static void _readCoord(uint16_t *x, uint16_t *y) {
     int16_t z, z1, z2, data[6] = {0};
     while (SPI2->SR & SPI_SR_BSY);
 
@@ -55,12 +56,20 @@ static void _readCoord() {
 
     SET_CS;
 
-    ui_touchEvent(X(data[3]), Y(data[2]));
+    if (x) {
+        *x = X(data[3]);
+    }
+    if (y) {
+        *y = Y(data[2]);
+    }
 }
 
 void TIM2_IRQHandler(void) {
+    uint16_t x, y;
+
     if (!(GPIOA->IDR & (1 << IRQ))) {
-        _readCoord();
+        _readCoord(&x, &y);
+        ui_touchEvent(x, y);
     }
     TIM2->SR &= ~(TIM_SR_UIF);
 }
@@ -77,5 +86,5 @@ void touch_init(void) {
     TIM2->DIER |= TIM_DIER_UIE;
     NVIC->ISER[0] |= 1 << TIM2_IRQn;
     TIM2->CR1 |= TIM_CR1_CEN;
-    _readCoord();
+    _readCoord(NULL, NULL);
 }

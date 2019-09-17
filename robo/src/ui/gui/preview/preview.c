@@ -18,6 +18,9 @@ void preview_draw(preview_t *prev, uint16_t x, uint16_t y) {
     uint16_t last[2] = {0};
     int status;
     shapeColor_t color = {0};
+
+    prev->node.x = x;
+    prev->node.y = y;
     
     color.fillColor = WHITE;
     color.strokeColor = BLACK;

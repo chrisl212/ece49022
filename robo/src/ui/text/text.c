@@ -1,5 +1,7 @@
 #include <stdint.h>
 #include <stdarg.h>
+#include "std/std.h"
+#include "math/math.h"
 #include "text.h"
 #include "colors/colors.h"
 #include "font.h"
@@ -77,21 +79,6 @@ static void _writeChar(fontHeader_t font, char c, uint16_t *x, uint16_t *y, uint
     *x += font.cell_max_width;
 }
 
-static int _pow(int a, int b) {
-    int res = 1;
-    while (b--) {
-        res *= a;
-    }
-    return res;
-}
-
-static int _strlen(char *s) {
-    int i = 0;
-    while (*s++) 
-        i++;
-    return i;
-}
-
 static int _writeInt(fontHeader_t font, int i, int b, uint16_t *x, uint16_t *y, uint16_t x0) {
     int digs, tmp, div, j, quo;
    
@@ -111,7 +98,7 @@ static int _writeInt(fontHeader_t font, int i, int b, uint16_t *x, uint16_t *y, 
 
     tmp = i;
     while (digs) {
-        div = _pow(b, --digs);
+        div = pow(b, --digs);
         quo = tmp/div;
         _writeChar(font, ((quo > 9) ? 'A' + (quo-10) : '0' + quo), x, y, x0);
         tmp %= div;
@@ -133,11 +120,11 @@ void text_writeFormatAtPoint(fontHeader_t font, uint16_t x, uint16_t y, textAlig
                 x0 = x;
                 break;
         case CENTER:
-                x0 = x + ((WIDTH - 1) - _strlen(fmt)*font.cell_max_width)/2;
+                x0 = x + ((WIDTH - 1) - strlen(fmt)*font.cell_max_width)/2;
                 x = x0;
                 break;
         case RIGHT:
-                x0 = x + ((WIDTH - 1) - _strlen(fmt)*font.cell_max_width);
+                x0 = x + ((WIDTH - 1) - strlen(fmt)*font.cell_max_width);
                 x = x0;
                 break;
         default:

@@ -2,6 +2,17 @@
 #include "state.h"
 #include "ui/ui.h"
 
-void state_init(void) {
-    state = STATE_SELECT;
+state_t currentState;
+
+void state_setup(void) {
+    currentState = STATE_WELCOME;
 }
+
+state_t state_get(void) {
+    return currentState;
+}
+
+void state_set(state_t state) {
+    currentState = state;
+}
+
