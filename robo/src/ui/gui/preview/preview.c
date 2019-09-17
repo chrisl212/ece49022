@@ -13,9 +13,10 @@ preview_t preview_create(fatFile_t file) {
 
 //shapeLine_t shape_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, color_t color);
 void preview_draw(preview_t *prev, uint16_t x, uint16_t y) {
-    uint8_t buf[6] = {0};
+    uint8_t buf[12] = {0};
     uint16_t xa, ya, paint;
     uint16_t last[2] = {0};
+    int status;
     shapeColor_t color = {0};
     
     color.fillColor = WHITE;
@@ -24,7 +25,8 @@ void preview_draw(preview_t *prev, uint16_t x, uint16_t y) {
     color.fillEnabled = 1;
     shape_drawRect(shape_rect(x, y, prev->node.width, prev->node.height, color));
 
-    while (fat_read(&prev->file, buf, 12) != FAT_EOF) {
+    do {
+        status = fat_read(&prev->file, buf, 12);
         xa = (buf[1] << 8) | buf[0];
         ya = (buf[5] << 8) | buf[4];
         paint = (buf[9] << 8) | buf[8];
@@ -35,5 +37,5 @@ void preview_draw(preview_t *prev, uint16_t x, uint16_t y) {
         }
         last[0] = xa;
         last[1] = ya;
-    }
+    } while (status != FAT_EOF);
 }
