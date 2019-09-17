@@ -1,7 +1,5 @@
-#include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include "text.h"
 #include "colors/colors.h"
 #include "font.h"
@@ -87,6 +85,13 @@ static int _pow(int a, int b) {
     return res;
 }
 
+static int _strlen(char *s) {
+    int i = 0;
+    while (*s++) 
+        i++;
+    return i;
+}
+
 static int _writeInt(fontHeader_t font, int i, int b, uint16_t *x, uint16_t *y, uint16_t x0) {
     int digs, tmp, div, j, quo;
    
@@ -128,11 +133,11 @@ void text_writeFormatAtPoint(fontHeader_t font, uint16_t x, uint16_t y, textAlig
                 x0 = x;
                 break;
         case CENTER:
-                x0 = x + ((WIDTH - 1) - strlen(fmt)*font.cell_max_width)/2;
+                x0 = x + ((WIDTH - 1) - _strlen(fmt)*font.cell_max_width)/2;
                 x = x0;
                 break;
         case RIGHT:
-                x0 = x + ((WIDTH - 1) - strlen(fmt)*font.cell_max_width);
+                x0 = x + ((WIDTH - 1) - _strlen(fmt)*font.cell_max_width);
                 x = x0;
                 break;
         default:

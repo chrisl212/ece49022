@@ -17,14 +17,18 @@ fatFile_t root, currentFile;
 char lines[ROW][COL] = {0};
 int z = 0;
 button_t prevButton, nextButton;
+statusBar_t statusBar;
+preview_t prev;
 
 void ui_setup(void) {
     ili9341_init();
     ili9341_fillLCD(WHITE);
     text_setColors(BLACK, WHITE);
-    statusBar_draw(statusBar_create("RoboPicasso"), 0, 0);
+    statusBar = statusBar_create("RoboPicasso");
+    statusBar.batteryPct = 25;
+    statusBar_draw(&statusBar, 0, 0);
     
-    prevButton = button_create("Previous", f_12x16, color16(0xDDDDDDD));
+    prevButton = button_create("Prev", f_12x16, color16(0xDDDDDDD));
     button_draw(&prevButton, 0, HEIGHT - prevButton.node.height);
 
     nextButton = button_create("Next", f_12x16, color16(0xDDDDDDD));
@@ -41,7 +45,9 @@ void ui_touchEvent(int x, int y) {
         } else if (node_containsPoint((node_t *)&prevButton, x, y)) {
             fat_getPreviousFile(&root, &currentFile);
         }
-        text_writeFormatAtPoint(f_12x16, 0, 40, CENTER, "Design: %s", currentFile.name);
+        prev = preview_create(currentFile);
+        preview_draw(&prev, (WIDTH - prev.node.width)/2, (HEIGHT - prev.node.height)/2);
+        text_writeFormatAtPoint(f_12x16, 0, statusBar.node.height+5, CENTER, "Design: %s", currentFile.name);
     }
 }
 

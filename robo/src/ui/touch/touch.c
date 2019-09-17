@@ -55,7 +55,6 @@ static void _readCoord() {
 
     SET_CS;
 
-    text_writeFormatAtPoint(f_12x16, 0, 150, LEFT, "(x, y) = (%d, %d)", X(data[3]), Y(data[2]));
     ui_touchEvent(X(data[3]), Y(data[2]));
 }
 

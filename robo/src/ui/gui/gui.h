@@ -4,6 +4,7 @@
 #include "shapes/shapes.h"
 #include "button/button.h"
 #include "statusBar/statusBar.h"
+#include "preview/preview.h"
 
 #endif
 

@@ -9,6 +9,7 @@ typedef uint16_t color_t;
 #define WHITE (0xFFFF)
 #define BLUE  (0xF800)
 #define RED   (0x001F)
+#define GREEN (0x07E0)
 
 color_t color12(uint32_t rgb);
 color_t color16(uint32_t rgb);
