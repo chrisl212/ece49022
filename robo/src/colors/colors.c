@@ -18,5 +18,5 @@ color_t color16(uint32_t rgb) {
     ro = (r * 0x1F) / 255;
     go = (g * 0x3F) / 255;
     bo = (b * 0x1F) / 255;
-    return (ro << 11) | (go << 5) | bo;
+    return (bo << 11) | (go << 5) | ro;
 }

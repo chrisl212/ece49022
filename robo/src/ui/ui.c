@@ -13,164 +13,35 @@
 #define ROW (2)
 #define COL (16)
 
-fatFile_t root;
+fatFile_t root, currentFile;
 char lines[ROW][COL] = {0};
 int z = 0;
-/*
-void _setupTIM3(void) {
-    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    GPIOC->MODER |= (0x2 << (2*6)) + (0x0 << (2*7));
-    
-    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-    TIM3->CCMR1 |= TIM_CCMR1_CC1S_0 + TIM_CCMR1_IC1F + TIM_CCMR1_IC1PSC_1;
-    TIM3->CCER |= TIM_CCER_CC1E;
-    TIM3->DIER |= TIM_DIER_CC1IE;
-    NVIC->ISER[0] |= 1 << TIM3_IRQn;
-    TIM3->CR1 |= TIM_CR1_CEN;
-}
-
-void TIM3_IRQHandler(void) {
-    char buf[17];
-    int i;
-
-    if (state == STATE_SELECT) {
-        if (GPIOC->IDR & (1 << 7)) {
-            fat_getPreviousFile(&root, &next);
-        } else {
-            fat_getNextFile(&root, &next);
-        }
-        text_writeFormatAtPoint(f_12x16, 20, 40, LEFT, "%s", next.name);
-    }
-    
-    TIM3->SR &= ~(TIM_SR_CC1IF);
-}
-
-static void _setupSPI(void) {
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-    GPIOA->MODER |= (0x2 << (2*4)) + (0x2 << (2*5)) + (0x2 << (2*7));
-    SPI1->CR1 |= SPI_CR1_MSTR + SPI_CR1_BR;
-    SPI1->CR1 |=  SPI_CR1_BIDIMODE + SPI_CR1_BIDIOE;
-    SPI1->CR2 = SPI_CR2_SSOE | SPI_CR2_NSSP | SPI_CR2_DS_3 | SPI_CR2_DS_0;
-    SPI1->CR1 |= SPI_CR1_SPE;
-}
-
-static void _SPIWrite(unsigned int data) {
-    while ((SPI1->SR & SPI_SR_TXE) != 2);
-    SPI1->DR = data;
-}*/
+button_t prevButton, nextButton;
 
 void ui_setup(void) {
-    button_t button;
-    
     ili9341_init();
     ili9341_fillLCD(WHITE);
     text_setColors(BLACK, WHITE);
-    text_writeFormatAtPoint(f_12x16, 20, 20, LEFT, "Select a design:");
-    button = button_create("Click me", f_08x08, color16(0xDDDDDDD));
-    button_draw(&button, 100, 100);
+    statusBar_draw(statusBar_create("RoboPicasso"), 0, 0);
+    
+    prevButton = button_create("Previous", f_12x16, color16(0xDDDDDDD));
+    button_draw(&prevButton, 0, HEIGHT - prevButton.node.height);
 
-//    _setupTIM3();
+    nextButton = button_create("Next", f_12x16, color16(0xDDDDDDD));
+    button_draw(&nextButton, WIDTH - nextButton.node.width, HEIGHT - nextButton.node.height);
+
     fat_init(&root);
     touch_init();
-//    TIM3_IRQHandler();
 }
 
 void ui_touchEvent(int x, int y) {
-    fatFile_t next;
     if (state == STATE_SELECT) {
-        if (x < WIDTH / 2) {
-            fat_getPreviousFile(&root, &next);
-        } else {
-            fat_getNextFile(&root, &next);
+        if (node_containsPoint((node_t *)&nextButton, x, y)) {
+            fat_getNextFile(&root, &currentFile);
+        } else if (node_containsPoint((node_t *)&prevButton, x, y)) {
+            fat_getPreviousFile(&root, &currentFile);
         }
-        text_writeFormatAtPoint(f_12x16, 20, 40, LEFT, "%s", next.name);
+        text_writeFormatAtPoint(f_12x16, 0, 40, CENTER, "Design: %s", currentFile.name);
     }
 }
 
-/*
-void ui_writeLine(int line, char *str) {
-    _SPIWrite(0x0080 + 0x40*line);
-    int l = strlen(str);
-    for (int i = 0; i < COL; i++) {
-        if (i < l) _SPIWrite(0x0200 | str[i]);
-        else _SPIWrite(0x0200 | ' ');
-    }
-}
-
-static int _pow(int a, int b) {
-    int res = 1;
-    while (b--) {
-        res *= a;
-    }
-    return res;
-}
-
-static int _writeInt(int i, int b) {
-    int digs, tmp, div, j, quo;
-   
-    j = 0;
-    if (i < 0) {
-        _SPIWrite(0x0200 | '-');
-        i = -i;
-        j++;
-    } 
-    digs = (i == 0);
-    tmp = i;
-
-    while (tmp) {
-        tmp /= b;
-        digs++;
-    }
-
-    tmp = i;
-    while (digs) {
-        div = _pow(b, --digs);
-        quo = tmp/div;
-        _SPIWrite(0x0200 | ((quo > 9) ? 'A' + (quo-10) : '0' + quo));
-        tmp %= div;
-        j++;
-    }
-    return j;
-}
-
-void ui_writeFormat(int line, char *fmt, ...) {
-    va_list lst;
-    int i = 0;
-    char *s;
-
-    va_start(lst, fmt);
-    _SPIWrite(0x0080 + 0x40*line);
-
-    while (*fmt) {
-        if (*fmt == '%') {
-            fmt++;
-            switch (*fmt) {
-                case 'd':
-                    i += _writeInt(va_arg(lst, int), 10);
-                    break;
-                case 'x':
-                    i += _writeInt(va_arg(lst, int), 16);
-                    break;
-                case 's':
-                    s = va_arg(lst, char *);
-                    while (*s) {
-                        _SPIWrite(0x0200 | *s++);
-                        i++;
-                    }
-                    break;
-                default:
-                    _SPIWrite(0x0200 | *fmt++);
-            }
-        } else {
-            _SPIWrite(0x0200 | *fmt);
-            i++;
-        }
-        fmt++;
-    }    
-
-    while (i++ < COL) {
-        _SPIWrite(0x0200 | ' ');
-    }
-    va_end(lst);    
-}*/

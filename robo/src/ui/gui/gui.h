@@ -3,6 +3,7 @@
 
 #include "shapes/shapes.h"
 #include "button/button.h"
+#include "statusBar/statusBar.h"
 
 #endif
 

@@ -4,13 +4,13 @@
 #include "colors/colors.h"
 #include "ui/text/text.h"
 #include "ui/gui/shapes/shapes.h"
+#include "ui/gui/node/node.h"
 
 typedef struct {
+    node_t node;
     char *title;
     shapeColor_t color;
     fontHeader_t font;
-    uint16_t width;
-    uint16_t height;
 } button_t;
 
 button_t button_create(char *title, fontHeader_t font, color_t color);
