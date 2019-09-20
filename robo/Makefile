@@ -39,7 +39,9 @@ $(TARGET).bin: $(COBJ) $(SOBJ)
 debug: flash
 	st-util > /dev/null 2>&1 &
 	arm-none-eabi-gdb -ex "tar extended-remote :4242" $(TARGET).elf
+	pkill st-util || true
 clean:
 	rm -rf build/ *.elf *.bin
 flash: $(TARGET).bin
+	pkill st-util || true
 	$(SF) write $(TARGET).bin 0x8000000
