@@ -63,20 +63,26 @@ class MapScene(QGraphicsScene):
             self.addEllipse(p[0]*self.widthStep-1.5, p[1]*self.heightStep-1.5, 3, 3)
 
     def addArc(self):
-        p1 = self.arc[0]
-        p2 = self.arc[1]
-        mid = self.arc[2]
-        res = 8
+        res = 20
+        p1 = np.array(self.arc[0])
+        p2 = np.array(self.arc[1])
+        mid = np.array(self.arc[2])
+        lhs = np.array([[p1[0], p1[1], 1], \
+                        [p2[0], p2[1], 1], \
+                        [mid[0], mid[1], 1]])
+        rhs = np.array([[-np.sum(np.power(p1, 2))], \
+                        [-np.sum(np.power(p2, 2))], \
+                        [-np.sum(np.power(mid, 2))]])
+        sol = np.linalg.solve(lhs, rhs)
+        # x^2 + y^2 + Ax + By + C = 0
+        xv = np.linspace(p1[0], p2[0], res)
+        yv = []
+        for i in range(xv.shape[0]):
+            roots = np.roots([1, sol[1], xv[i]**2 + sol[0]*xv[i] + sol[2]])
+            yv.append(roots[1])
+        points = np.column_stack((xv, yv))
         self.currentShape.append(p1)
-        for i in range(res):
-            x = p1[0] + (mid[0] - p1[0])/(i+1)
-            y = p1[1] + (mid[1] - p1[1])/(i+1)
-            self.currentShape.append((x, y))
-        self.currentShape.append(mid)
-        for i in range(res):
-            x = mid[0] + (p2[0] - mid[0])/(i+1)
-            y = mid[1] + (p2[1] - mid[1])/(i+1)
-            self.currentShape.append((x, y))
+        self.currentShape.extend(points)
         self.currentShape.append(p2)
 
     def mousePressEvent(self, mousePressEvent: QMouseEvent):
