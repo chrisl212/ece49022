@@ -27,6 +27,37 @@
        <widget class="QGraphicsView" name="gridView"/>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QToolButton" name="lineButton">
+          <property name="text">
+           <string>Line</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="arcButton">
+          <property name="text">
+           <string>Arc</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLabel" name="widthLabel">
@@ -70,13 +101,6 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QPushButton" name="calcButton">
-          <property name="text">
-           <string>Calculate</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QPushButton" name="saveButton">
           <property name="text">
