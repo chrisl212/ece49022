@@ -153,6 +153,8 @@ int sd_init(sdCard_t *card) {
         return 1;
     }
 
+    SPI2->CR1 &= ~(SPI_CR1_BR);
+    SPI2->CR1 |= SPI_CR1_BR_0;
     return SD_OKAY;
 }
 
