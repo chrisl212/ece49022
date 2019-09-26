@@ -66,11 +66,13 @@ void setup_gpio() {
 
 	GPIOA->MODER &= ~3<<2; //Configure PA1 as the analog input from pot
 	GPIOA->MODER |= 3<<2;
-	GPIOA->MODER &= ~15<<16; //Configure PA8 and PA9 as alternate function pins
-	GPIOA->MODER |= 10<<16;
+	GPIOA->MODER &= ~255<<16; //Configure PA8 and PA9 and PA10 and PA11 as alternate function pins
+	GPIOA->MODER |= 170<<16;
 
 	GPIOA->AFR[1] |= 2; //Configure PA8 and PA9 as AF2 for PWM output
 	GPIOA->AFR[1] |= 2 << 4;
+	GPIOA->AFR[1] |= 2 << 8;
+	GPIOA->AFR[1] |= 2 << 12;
 }
 
 //Update the capture/compare registers on TIM1 based on pot input
@@ -101,7 +103,7 @@ void setup_pwm() {
 	TIM1->CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3PE; //Configure TIM1 Channel 3 for PWM mode 1 w/ preload enabled BIN1
 	TIM1->CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4PE; //Configure TIM1 Channel 3 for PWM mode 1 w/ preload enabled BIN1
 
-	TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E; //Enable channels 1 and 2 on TIM1
+	TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E; //Enable channels 1 and 2 on TIM1
 	TIM1->BDTR |= TIM_BDTR_MOE; //Enables outputs
 	TIM1->CR1 |= TIM_CR1_CEN; //Enable the timer
 }
