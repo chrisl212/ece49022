@@ -72,7 +72,7 @@ void setup_gpio() {
 	GPIOA->AFR[1] |= 2; //Configure PA8 and PA9 as AF2 for PWM output
 	GPIOA->AFR[1] |= 2 << 4;
 	GPIOA->AFR[1] |= 2 << 8;
-	GPIOA->AFR[1] |= 2 << 12;
+	GPIOA->AFR[1] |= 2 << 12; //test
 }
 
 //Update the capture/compare registers on TIM1 based on pot input
