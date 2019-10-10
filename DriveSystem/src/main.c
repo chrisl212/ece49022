@@ -12,6 +12,7 @@
 #include "stm32f0xx.h"
 #include "stm32f0_discovery.h"
 #include "pid.h"
+#include <stdio.h>
 
 
 //setup TIM3 interrupt to trigger ADC every 200us
@@ -69,15 +70,27 @@ void setup_gpio() {
 }
 
 //Update the capture/compare registers on TIM1 based on pot input
-void update_speed(){
-	int spd;
+void update_speed(struct Motor *motorOut){
+	//int spd;
 
-	spd = 100 - ((ADC1->DR * 3 / 4095.0) / 2.95) * 100;
-	TIM1->CCR1 = spd; //Sets the capture/compare value for motor 1
-	TIM1->CCR2 = spd; //Sets the capture/compare value for motor 2
+	if (motorOut->rDir){
+		TIM1->CCR1 = motorOut->rPWM; //Right motor forward
+		TIM1->CCR2 = 0;
+	}else{
+		TIM1->CCR1 = 0;
+		TIM1->CCR2 = motorOut->rPWM; //Right motor reverse
+	}
+	if (motorOut->lDir){
+		TIM1->CCR3 = motorOut->lPWM; //Left motor forward
+		TIM1->CCR4 = 0;
+	}else{
+		TIM1->CCR3 = 0;
+		TIM1->CCR4 = motorOut->lPWM; //Left motor reverse
+	}
+
 
 	char line1[16];
-	sprintf(line1, "Value Is: %d", spd);
+	//sprintf(line1, "Value Is: %d", spd);
 	display1(line1);
 }
 
@@ -87,8 +100,8 @@ void setup_pwm() {
 	TIM1->CR1 &= ~TIM_CR1_DIR; //Configure timer 1 as up counter
 
 	//PWM Frequency 100kHz
-	TIM1->PSC = 48000 - 1; //set prescaler
-	TIM1->ARR = 100 - 1; //set auto reload register
+	TIM1->PSC = 4800 - 1; //set prescaler
+	TIM1->ARR = 1000 - 1; //set auto reload register
 
 	//Configure PWM Channels, Left Motor -> TIM1 CH1	Right Motor -> TIM1 CH 2
 	TIM1->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE; //Configure TIM1 Channel 1 for PWM mode 1 w/ preload enabled AIN1
@@ -101,24 +114,67 @@ void setup_pwm() {
 	TIM1->CR1 |= TIM_CR1_CEN; //Enable the timer
 }
 void TIM3_IRQHandler() {
-	int spd;
+	//int spd;
 
-	spd = read_adc_channel(1);
-	update_speed();
+	//spd = read_adc_channel(1);
+	//update_speed();
 
 	TIM3->SR &= ~TIM_SR_UIF;
 }
 
-int base_PWM(int currentSpeed, int desiredSpeed, struct speedPID){
+void base_PWM(int currentSpeed, int desiredSpeed, struct Speed *speedPID){
 	int error;
 
 
 	error = desiredSpeed - currentSpeed;
-	speedPID.integral = speedPID.integral + error;
+	speedPID->integral = speedPID->integral + error;
 
-	pwm =
+	//speedPID.pwm = (speedPID.Kp * error) + (speedPID.Ki * speedPID.integral);
+	speedPID->pwm = 500; //Run at half speed to test
+	if (speedPID->pwm > 1000) speedPID->pwm = 1000;
+	else if (speedPID->pwm < 0) speedPID->pwm = 0;
+
 }
 
+void head_PWM(int currentHeading, int desiredHeading, struct Head *headPID){
+	int error;
+
+
+	error = desiredHeading - currentHeading;
+	headPID->integral = headPID->integral + error;
+
+	headPID->pwm = ((headPID->Kp / 1000) * error) + ((headPID->Ki / 1000) * headPID->integral); //divide by 1000 to work with ints
+
+	if (headPID->pwm > 500) headPID->pwm = 500;
+	else if (headPID->pwm < -500) headPID->pwm = -500;
+
+}
+
+int getCurrentSpeed(){
+	int currentSpeed;
+
+
+	return currentSpeed;
+}
+int getDesiredSpeed(){
+	int desiredSpeed;
+
+	return desiredSpeed;
+}
+int getCurrentHeading(){
+	int currentHeading;
+
+	currentHeading = 500;
+
+	return currentHeading;
+}
+int getDesiredHeading(){
+	int desiredHeading;
+
+	desiredHeading = 1000;
+
+	return desiredHeading;
+}
 int main(void)
 {
 	init_lcd();
@@ -128,10 +184,56 @@ int main(void)
 	setup_adc();
 	setup_pwm();
 
-	speedPID.integral = ;
-	speedPID.Kp = ;
-	speedPID.Ki = ;
-	speedPID.pwm = ;
+	struct Speed speedPID;
+	struct Head headPID;
+	struct Motor motorOut;
 
-	while(1);
+	//initialize PID controllers
+	//This will be updated when we get the velocity
+	speedPID.integral = 0;
+	speedPID.Kp = 0;
+	speedPID.Ki = 0;
+	speedPID.pwm = 0;
+
+	//Mess with these values
+	headPID.Kp = 2000; //Kp = headPID.Kp / 1000
+	headPID.integral = 0;
+	headPID.Ki = 1000; //Kp = headPID.Ki / 1000
+	headPID.pwm = 0;
+
+	int currentSpeed;
+	int desiredSpeed;
+	int currentHeading;
+	int desiredHeading;
+
+	int rOffset;
+	int lOffset;
+
+
+	currentSpeed = 500; //Remove after testing
+	desiredSpeed = 500; //These values will be replaced when we get velocity
+
+	while(1){
+		//currentSpeed = getCurrentSpeed(); //Get current speed from navigation controller
+		//desiredSpeed = getDesiredSpeed(); //Get desired speed from navigation controller
+		currentHeading = getCurrentHeading(); //Get current heading from navigation controller
+		desiredHeading = getDesiredHeading(); //Get desired heading from navigation controller
+
+		base_PWM(currentSpeed, desiredSpeed, &speedPID); //calculate new speed pwm
+		head_PWM(currentHeading, desiredHeading, &headPID); //calculate new heading pwm
+
+		if (headPID.pwm > 0){
+			rOffset = headPID.pwm * -1; //if heading offset is positive turn right
+			lOffset = 0;
+		}
+		else{
+			lOffset = headPID.pwm; //if heading offset is negative turn left
+			rOffset = 0;
+		}
+		motorOut.rPWM = speedPID.pwm + rOffset;
+		motorOut.lPWM = speedPID.pwm + lOffset;
+		motorOut.lDir = 1; //drive forward
+		motorOut.rDir = 1; //drive forward
+		update_speed(&motorOut);
+	}
 }
