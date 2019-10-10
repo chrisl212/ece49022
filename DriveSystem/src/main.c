@@ -11,14 +11,7 @@
 
 #include "stm32f0xx.h"
 #include "stm32f0_discovery.h"
-
-void setup_timer3();
-void TIM3_IRQHandler();
-void setup_adc();
-int read_adc_channel(unsigned int channel);
-void setup_gpio();
-void update_speed();
-void setup_pwm();
+#include "pid.h"
 
 
 //setup TIM3 interrupt to trigger ADC every 200us
@@ -66,11 +59,13 @@ void setup_gpio() {
 
 	GPIOA->MODER &= ~3<<2; //Configure PA1 as the analog input from pot
 	GPIOA->MODER |= 3<<2;
-	GPIOA->MODER &= ~15<<16; //Configure PA8 and PA9 as alternate function pins
-	GPIOA->MODER |= 10<<16;
+	GPIOA->MODER &= ~255<<16; //Configure PA8 and PA9 and PA10 and PA11 as alternate function pins
+	GPIOA->MODER |= 170<<16;
 
-	GPIOA->AFR[1] |= 2; //Configure PA8 and PA9 as AF2 for PWM output
+	GPIOA->AFR[1] |= 2; //Configure PA8, PA9, PA10, and PA11 as AF2 for PWM output
 	GPIOA->AFR[1] |= 2 << 4;
+	GPIOA->AFR[1] |= 2 << 8;
+	GPIOA->AFR[1] |= 2 << 12;
 }
 
 //Update the capture/compare registers on TIM1 based on pot input
@@ -101,7 +96,7 @@ void setup_pwm() {
 	TIM1->CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3PE; //Configure TIM1 Channel 3 for PWM mode 1 w/ preload enabled BIN1
 	TIM1->CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4PE; //Configure TIM1 Channel 3 for PWM mode 1 w/ preload enabled BIN1
 
-	TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E; //Enable channels 1 and 2 on TIM1
+	TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E; //Enable channels 1, 2, 3, and 4 on TIM1
 	TIM1->BDTR |= TIM_BDTR_MOE; //Enables outputs
 	TIM1->CR1 |= TIM_CR1_CEN; //Enable the timer
 }
@@ -114,6 +109,16 @@ void TIM3_IRQHandler() {
 	TIM3->SR &= ~TIM_SR_UIF;
 }
 
+int base_PWM(int currentSpeed, int desiredSpeed, struct speedPID){
+	int error;
+
+
+	error = desiredSpeed - currentSpeed;
+	speedPID.integral = speedPID.integral + error;
+
+	pwm =
+}
+
 int main(void)
 {
 	init_lcd();
@@ -122,6 +127,11 @@ int main(void)
 	setup_timer3();
 	setup_adc();
 	setup_pwm();
+
+	speedPID.integral = ;
+	speedPID.Kp = ;
+	speedPID.Ki = ;
+	speedPID.pwm = ;
 
 	while(1);
 }
