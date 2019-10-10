@@ -2,8 +2,8 @@
 #include "ui/text/text.h"
 
 int node_containsPoint(node_t *node, uint16_t x, uint16_t y) {
-    if (x > node->x && x < (node->x + node->width)) {
-        if (y > node->y && y < (node->y + node->height)) {
+    if (x > (node->x-5) && x < (node->x + node->width + 5)) {
+        if (y > (node->y-5) && y < (node->y + node->height + 5)) {
             return 1;
         }
     }

@@ -7,6 +7,9 @@
 typedef struct {
     node_t node;
     button_t nextButton;
+    button_t pidButton1;
+    button_t pidButton2;
+    button_t incDecButton;
 } navWindow_t;
 
 navWindow_t navWindow_create(void);

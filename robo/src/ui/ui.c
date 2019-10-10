@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <string.h>
+#include "stack/stack.h"
 #include "state/state.h"
 #include "fat/fat.h"
 #include "stm32f0xx.h"
@@ -27,18 +28,28 @@ void ui_setup(void) {
     selectWindow = selectWindow_create(root);
     navWindow = navWindow_create();
 
+    stack_init();
     ui_draw();
     touch_init();
 }
 
 void ui_draw(void) {
     if (state_get() == STATE_WELCOME) {
+        stack_on(STACK_GRN);
+        stack_on(STACK_YEL);
         welcomeWindow_draw(&welcomeWindow);
     } else if (state_get() == STATE_SELECT) {
+        stack_off(STACK_GRN);
+        stack_off(STACK_RED);
+        stack_on(STACK_YEL);
         selectWindow_draw(&selectWindow);
     } else if (state_get() == STATE_NAV) {
+        stack_off(STACK_YEL);
+        stack_on(STACK_GRN);
         navWindow_draw(&navWindow);
     } else if (state_get() == STATE_DONE) {
+        stack_on(STACK_GRN);
+        stack_on(STACK_YEL);
         ili9341_fillLCD(WHITE);
         text_writeTextAtPoint(f_12x16, "Done!", 0, 160, CENTER);
     }

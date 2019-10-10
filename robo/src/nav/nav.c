@@ -1,14 +1,39 @@
+#include "stm32f0xx.h"
+#include "ui/text/text.h"
 #include "nav.h"
 #include "lps/lps.h"
 #include "state/state.h"
 #include "ui/ui.h"
 #include "math/math.h"
+#include "lsm9ds0/lsm9ds0.h"
 
 fatFile_t design;
+uint16_t initialHead;
+
+void TIM14_IRQHandler(void) {
+    int16_t head = lsm9ds0_getHeading() - initialHead;
+    if (head < 0) {
+        head += 360;
+    }
+
+    text_writeFormatAtPoint(f_12x16, 0, 20, LEFT, "Heading: %d  ", head);
+
+    TIM14->SR &= ~(TIM_SR_UIF);
+}
 
 void nav_setup(fatFile_t file) {
     design = file;
-    lps_setup();
+//    lps_setup();
+    lsm9ds0_setup();
+
+    RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
+    TIM14->PSC = 4800 - 1;
+    TIM14->ARR = 100 - 1;
+    TIM14->DIER |= TIM_DIER_UIE;
+    NVIC->ISER[0] |= 1 << TIM14_IRQn;
+    TIM14->CR1 |= TIM_CR1_CEN;
+
+    initialHead = lsm9ds0_getHeading();
 }
 
 static int _getNextCoords(uint16_t *x, uint16_t *y, uint8_t *p) {
