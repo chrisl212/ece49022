@@ -58,10 +58,17 @@ static void _readCoord(uint16_t *x, uint16_t *y) {
 
     if (x) {
         *x = X(data[3]);
+        if (*x > 1000) {
+            *x = 0;
+        }
     }
     if (y) {
         *y = Y(data[2]);
+        if (*y > 1000) {
+            *y = 0;
+        }
     }
+
 }
 
 void TIM2_IRQHandler(void) {

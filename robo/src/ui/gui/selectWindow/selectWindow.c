@@ -12,14 +12,14 @@ static void touchEvent(void *node, uint16_t x, uint16_t y) {
         fat_getNextFile(&window->dir, &window->currentFile);
         
         window->prev = preview_create(window->currentFile);
-        preview_draw(&window->prev, (WIDTH - window->prev.node.width)/2, (HEIGHT - window->prev.node.height)/2);
+        preview_draw(&window->prev, (WIDTH - window->prev.node.width)/2, (HEIGHT - window->prev.node.height)/2+15);
     
         text_writeTextAtPoint(f_12x16, window->currentFile.name, 0, window->statusBar.node.height+5, CENTER);
     } else if (node_containsPoint((node_t *)&window->prevButton, x, y)) {
         fat_getPreviousFile(&window->dir, &window->currentFile);
         
         window->prev = preview_create(window->currentFile);
-        preview_draw(&window->prev, (WIDTH - window->prev.node.width)/2, (HEIGHT - window->prev.node.height)/2);
+        preview_draw(&window->prev, (WIDTH - window->prev.node.width)/2, (HEIGHT - window->prev.node.height)/2+15);
     
         text_writeTextAtPoint(f_12x16, window->currentFile.name, 0, window->statusBar.node.height+5, CENTER);
     } else if (node_containsPoint((node_t *)&window->prev, x, y)) {

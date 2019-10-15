@@ -112,6 +112,7 @@ void ili9341_init(void) {
     //-----------------------------Display setting--------------------------------
     _sendCommand(ILI9341_MADCTL); //Page 215
     _sendData(0xE0); //DEFAULT
+//    _sendData(0x20);
 
     //Address control
     _sendCommand(ILI9341_COLMOD); //Interface pixel format Pg 224

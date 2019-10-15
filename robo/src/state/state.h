@@ -7,11 +7,13 @@ typedef enum {
     STATE_NAV,
     STATE_BAT,
     STATE_EMPTY,
+    STATE_COL,
     STATE_DONE
 } state_t;
 
 void state_setup(void);
 state_t state_get(void);
+void state_restore(void);
 void state_set(state_t state);
 
 #endif

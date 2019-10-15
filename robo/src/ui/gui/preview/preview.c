@@ -4,14 +4,13 @@
 preview_t preview_create(fatFile_t file) {
     preview_t prev = {0};
 
-    prev.node.width = 150;
-    prev.node.height = 150;
+    prev.node.width = 175;
+    prev.node.height = 175;
     prev.file = file;
 
     return prev;
 }
 
-//shapeLine_t shape_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, color_t color);
 void preview_draw(preview_t *prev, uint16_t x, uint16_t y) {
     uint8_t buf[12] = {0};
     uint16_t xa, ya, paint;

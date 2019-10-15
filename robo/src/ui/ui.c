@@ -34,17 +34,18 @@ void ui_setup(void) {
 }
 
 void ui_draw(void) {
+    stack_off(STACK_GRN);
+    stack_off(STACK_YEL);
+    stack_off(STACK_RED);
+    buzzer_off();
     if (state_get() == STATE_WELCOME) {
         stack_on(STACK_GRN);
         stack_on(STACK_YEL);
         welcomeWindow_draw(&welcomeWindow);
     } else if (state_get() == STATE_SELECT) {
-        stack_off(STACK_GRN);
-        stack_off(STACK_RED);
         stack_on(STACK_YEL);
         selectWindow_draw(&selectWindow);
     } else if (state_get() == STATE_NAV) {
-        stack_off(STACK_YEL);
         stack_on(STACK_GRN);
         navWindow_draw(&navWindow);
     } else if (state_get() == STATE_DONE) {
@@ -52,6 +53,33 @@ void ui_draw(void) {
         stack_on(STACK_YEL);
         ili9341_fillLCD(WHITE);
         text_writeTextAtPoint(f_12x16, "Done!", 0, 160, CENTER);
+    } else if (state_get() == STATE_BAT) {
+        stack_on(STACK_RED);
+        buzzer_on();
+        ili9341_fillLCD(RED);
+        text_pushColors();
+        text_setColors(WHITE, RED);
+        text_writeTextAtPoint(f_12x16, "BATTERY LOW!!!", 0, 130, CENTER);
+        text_writeTextAtPoint(f_08x08, "Tap anywhere to acknowledge", 0, 160, CENTER);
+        text_popColors();
+    } else if (state_get() == STATE_EMPTY) {
+        stack_on(STACK_RED);
+        buzzer_on();
+        ili9341_fillLCD(RED);
+        text_pushColors();
+        text_setColors(WHITE, RED);
+        text_writeTextAtPoint(f_12x16, "REFILL CAN!!!", 0, 130, CENTER);
+        text_writeTextAtPoint(f_08x08, "Tap anywhere to acknowledge", 0, 160, CENTER);
+        text_popColors();
+    } else if (state_get() == STATE_COL) {
+        stack_on(STACK_RED);
+        buzzer_on();
+        ili9341_fillLCD(RED);
+        text_pushColors();
+        text_setColors(WHITE, RED);
+        text_writeTextAtPoint(f_12x16, "COLLISION DETECTED!!!", 0, 130, CENTER);
+        text_writeTextAtPoint(f_08x08, "Tap anywhere to acknowledge", 0, 160, CENTER);
+        text_popColors();
     }
 }
 
@@ -65,6 +93,13 @@ void ui_touchEvent(int x, int y) {
     } else if (state_get() == STATE_DONE) {
         state_set(STATE_WELCOME);
         ui_draw();
+    } else if (state_get() == STATE_BAT) {
+        buzzer_off();
+    } else if (state_get() == STATE_EMPTY) {
+        state_restore();
+        ui_draw();
+    } else if (state_get() == STATE_COL) {
+        buzzer_off();
     }
 }
 
