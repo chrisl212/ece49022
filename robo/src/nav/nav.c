@@ -23,7 +23,8 @@ void TIM14_IRQHandler(void) {
     uint8_t p;
 
     tmpHead += lsm9ds0_getHeading() - initialHead;
-    
+
+/*    
     if (battery_low() && state_get() != STATE_BAT) {
         state_set(STATE_BAT);
         ui_draw();
@@ -35,7 +36,7 @@ void TIM14_IRQHandler(void) {
         drive_start();
     } else if (state_get() == STATE_BAT) {
         return;
-    }
+    } */
 
     if (++avgCnt == SAMPLES) {
         head = tmpHead/SAMPLES;
