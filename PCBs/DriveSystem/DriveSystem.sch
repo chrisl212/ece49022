@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:DriveSystem-cache
-EELAYER 30 0
+EELAYER 29 0
 EELAYER END
 $Descr A1 33110 23386
 encoding utf-8
@@ -14,17 +14,6 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-$Comp
-L MCU_ST_STM32F0:STM32F051R8Tx U?
-U 1 1 5DA62A92
-P 6300 5700
-F 0 "U?" H 5700 3950 50  0000 C CNN
-F 1 "STM32F051R8Tx" H 5750 3850 50  0000 C CNN
-F 2 "Package_QFP:LQFP-64_10x10mm_P0.5mm" H 5800 4000 50  0001 R CNN
-F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00039193.pdf" H 6300 5700 50  0001 C CNN
-	1    6300 5700
-	1    0    0    -1  
-$EndComp
 $Comp
 L Driver_Motor:DRV8848 U?
 U 1 1 5DA66C23
@@ -289,36 +278,14 @@ Text Label 8400 4400 0    50   ~ 0
 nFAULT
 Text Label 8400 4500 0    50   ~ 0
 nSLEEP
-Wire Wire Line
-	6900 4900 7200 4900
-Wire Wire Line
-	6900 5000 7200 5000
 Text Label 7200 4900 2    50   ~ 0
 AIN1
 Text Label 7200 5000 2    50   ~ 0
 AIN2
-Wire Wire Line
-	6900 5100 7200 5100
-Wire Wire Line
-	6900 5200 7200 5200
-Wire Wire Line
-	5700 6600 5400 6600
 Text Label 7200 5100 2    50   ~ 0
 BIN1
 Text Label 7200 5200 2    50   ~ 0
 BIN2
-Text Label 5400 6600 0    50   ~ 0
-nSLEEP
-Wire Wire Line
-	6900 6700 7200 6700
-Wire Wire Line
-	6900 4700 7200 4700
-Wire Wire Line
-	6900 4800 7200 4800
-Text Label 7200 4700 2    50   ~ 0
-ECHOr
-Text Label 7200 4800 2    50   ~ 0
-ECHOl
 Text Label 7200 6700 2    50   ~ 0
 TRIG
 $Comp
@@ -605,62 +572,6 @@ F 3 "" H 8150 6450 50  0001 C CNN
 	1    8150 6450
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6200 3900 6200 3800
-Wire Wire Line
-	6200 3800 6300 3800
-Wire Wire Line
-	6500 3800 6500 3900
-Wire Wire Line
-	6300 3900 6300 3800
-Connection ~ 6300 3800
-Wire Wire Line
-	6300 3800 6350 3800
-Wire Wire Line
-	6400 3900 6400 3800
-Connection ~ 6400 3800
-Wire Wire Line
-	6400 3800 6500 3800
-Wire Wire Line
-	6350 3800 6350 3750
-Connection ~ 6350 3800
-Wire Wire Line
-	6350 3800 6400 3800
-$Comp
-L power:VDD #PWR?
-U 1 1 5DA8196E
-P 6350 3750
-F 0 "#PWR?" H 6350 3600 50  0001 C CNN
-F 1 "VDD" H 6367 3923 50  0000 C CNN
-F 2 "" H 6350 3750 50  0001 C CNN
-F 3 "" H 6350 3750 50  0001 C CNN
-	1    6350 3750
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6200 7500 6200 7550
-Wire Wire Line
-	6200 7550 6300 7550
-Wire Wire Line
-	6400 7550 6400 7500
-Wire Wire Line
-	6300 7500 6300 7550
-Connection ~ 6300 7550
-Wire Wire Line
-	6300 7550 6400 7550
-$Comp
-L power:GND #PWR?
-U 1 1 5DA875CA
-P 6300 7600
-F 0 "#PWR?" H 6300 7350 50  0001 C CNN
-F 1 "GND" H 5750 7500 50  0000 C CNN
-F 2 "" H 6300 7600 50  0001 C CNN
-F 3 "" H 6300 7600 50  0001 C CNN
-	1    6300 7600
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6300 7600 6300 7550
 Text Label 8350 9050 2    50   ~ 0
 NRST
 $Comp
@@ -979,22 +890,10 @@ Wire Wire Line
 	13050 8400 13050 8500
 Wire Wire Line
 	13950 8400 13950 8500
-Wire Wire Line
-	6900 5500 7200 5500
 Text Label 7200 5500 2    50   ~ 0
 SWCLK
-Wire Wire Line
-	6900 5400 7200 5400
 Text Label 7200 5400 2    50   ~ 0
 SWDIO
-Wire Wire Line
-	5700 4100 5400 4100
-Text Label 5400 4100 0    50   ~ 0
-NRST
-Wire Wire Line
-	5400 4300 5700 4300
-Text Label 5400 4300 0    50   ~ 0
-BOOT0
 Text Notes 10650 3400 0    50   ~ 0
 -Connect nFault to micro?\n
 Text Notes 7650 8200 0    50   ~ 0
@@ -1021,8 +920,518 @@ Text Notes 13550 3950 0    50   ~ 0
 VM Decoupling Capacitors\n
 Text Notes 8350 6100 0    50   ~ 0
 12V Input Header\n
-Text Notes 5800 3500 0    50   ~ 0
-STM32F051R8T6 Microcontroller\n
 Text Notes 10900 2850 0    50   ~ 0
 Schematic TODO\n
+Text Label 9050 10300 2    50   ~ 0
+T_CLK
+Text Label 9050 10100 2    50   ~ 0
+T_DIN
+Text Label 9050 10000 2    50   ~ 0
+T_DO
+Text Label 9050 9900 2    50   ~ 0
+T_IRQ
+Text Label 9050 10800 2    50   ~ 0
+LCD_DC
+Text Label 9050 10900 2    50   ~ 0
+LCD_RESET
+Text Label 9050 11000 2    50   ~ 0
+LCD_CS
+Text Label 9050 10200 2    50   ~ 0
+T_CS
+Text Label 7200 4300 2    50   ~ 0
+LCD_DC
+Text Label 7200 4400 2    50   ~ 0
+LCD_RESET
+Text Label 7200 4600 2    50   ~ 0
+LCD_SCK
+Wire Wire Line
+	6600 4300 7200 4300
+Wire Wire Line
+	6600 4400 7200 4400
+Wire Wire Line
+	6600 4500 7200 4500
+Wire Wire Line
+	6600 4600 7200 4600
+Wire Wire Line
+	6600 4700 7200 4700
+Wire Wire Line
+	6600 4800 7200 4800
+Wire Wire Line
+	6600 4900 7200 4900
+Wire Wire Line
+	6600 5000 7200 5000
+Wire Wire Line
+	6600 5100 7200 5100
+Wire Wire Line
+	6600 5200 7200 5200
+Wire Wire Line
+	6600 5400 7200 5400
+Wire Wire Line
+	6600 5500 7200 5500
+Wire Wire Line
+	6600 6700 7200 6700
+Text Label 7200 4800 2    50   ~ 0
+LCD_SDI_MOSI
+$Comp
+L power:+3V3 #PWR?
+U 1 1 5DBBF092
+P 9250 11200
+F 0 "#PWR?" H 9250 11050 50  0001 C CNN
+F 1 "+3V3" V 9200 11100 50  0000 C CNN
+F 2 "" H 9250 11200 50  0001 C CNN
+F 3 "" H 9250 11200 50  0001 C CNN
+	1    9250 11200
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5DBCF388
+P 9250 11100
+F 0 "#PWR?" H 9250 10850 50  0001 C CNN
+F 1 "GND" V 9300 11200 50  0000 C CNN
+F 2 "" H 9250 11100 50  0001 C CNN
+F 3 "" H 9250 11100 50  0001 C CNN
+	1    9250 11100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3V3 #PWR?
+U 1 1 5DBD7A9A
+P 9250 10500
+F 0 "#PWR?" H 9250 10350 50  0001 C CNN
+F 1 "+3V3" V 9200 10400 50  0000 C CNN
+F 2 "" H 9250 10500 50  0001 C CNN
+F 3 "" H 9250 10500 50  0001 C CNN
+	1    9250 10500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6600 7000 7200 7000
+Text Label 9050 10700 2    50   ~ 0
+LCD_SDI_MOSI
+Text Label 9050 10600 2    50   ~ 0
+LCD_SCK
+Wire Wire Line
+	9050 10700 8500 10700
+Wire Wire Line
+	9050 10600 8500 10600
+Wire Wire Line
+	8500 10500 9250 10500
+Wire Wire Line
+	9050 10300 8500 10300
+Wire Wire Line
+	8500 10200 9050 10200
+Wire Wire Line
+	9050 10100 8500 10100
+Wire Wire Line
+	9050 10000 8500 10000
+Wire Wire Line
+	8500 11200 9250 11200
+Wire Wire Line
+	8500 11100 9250 11100
+Wire Wire Line
+	8500 11000 9050 11000
+Wire Wire Line
+	8500 10900 9050 10900
+Wire Wire Line
+	8500 10800 9050 10800
+Wire Wire Line
+	9050 9900 8500 9900
+$Comp
+L Connector:Conn_01x14_Female J?
+U 1 1 5DAC81F6
+P 8300 10500
+F 0 "J?" H 8328 10476 50  0000 L CNN
+F 1 "Conn_01x14_Female" H 8328 10385 50  0000 L CNN
+F 2 "" H 8300 10500 50  0001 C CNN
+F 3 "~" H 8300 10500 50  0001 C CNN
+	1    8300 10500
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	5400 6500 5000 6500
+Wire Wire Line
+	5400 6400 5000 6400
+Text Notes 5500 3500 0    50   ~ 0
+STM32F051R8T6 Microcontroller\n
+Text Label 5000 4300 0    50   ~ 0
+BOOT0
+Wire Wire Line
+	5000 4300 5400 4300
+Text Label 5000 4100 0    50   ~ 0
+NRST
+Wire Wire Line
+	5400 4100 5000 4100
+Wire Wire Line
+	6000 7600 6000 7550
+$Comp
+L power:GND #PWR?
+U 1 1 5DA875CA
+P 6000 7600
+F 0 "#PWR?" H 6000 7350 50  0001 C CNN
+F 1 "GND" H 5450 7500 50  0000 C CNN
+F 2 "" H 6000 7600 50  0001 C CNN
+F 3 "" H 6000 7600 50  0001 C CNN
+	1    6000 7600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6000 7550 6100 7550
+Connection ~ 6000 7550
+Wire Wire Line
+	6000 7500 6000 7550
+Wire Wire Line
+	6100 7550 6100 7500
+Wire Wire Line
+	5900 7550 6000 7550
+Wire Wire Line
+	5900 7500 5900 7550
+$Comp
+L power:VDD #PWR?
+U 1 1 5DA8196E
+P 6050 3750
+F 0 "#PWR?" H 6050 3600 50  0001 C CNN
+F 1 "VDD" H 6067 3923 50  0000 C CNN
+F 2 "" H 6050 3750 50  0001 C CNN
+F 3 "" H 6050 3750 50  0001 C CNN
+	1    6050 3750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 3800 6100 3800
+Connection ~ 6050 3800
+Wire Wire Line
+	6050 3800 6050 3750
+Wire Wire Line
+	6100 3800 6200 3800
+Connection ~ 6100 3800
+Wire Wire Line
+	6100 3900 6100 3800
+Wire Wire Line
+	6000 3800 6050 3800
+Connection ~ 6000 3800
+Wire Wire Line
+	6000 3900 6000 3800
+Wire Wire Line
+	6200 3800 6200 3900
+Wire Wire Line
+	5900 3800 6000 3800
+Wire Wire Line
+	5900 3900 5900 3800
+Text Label 5000 6500 0    50   ~ 0
+ECHOl
+Text Label 5000 6400 0    50   ~ 0
+ECHOr
+Text Label 5000 6600 0    50   ~ 0
+nSLEEP
+Wire Wire Line
+	5400 6600 5000 6600
+$Comp
+L MCU_ST_STM32F0:STM32F051R8Tx U?
+U 1 1 5DA62A92
+P 6000 5700
+F 0 "U?" H 5400 3950 50  0000 C CNN
+F 1 "STM32F051R8Tx" H 5450 3850 50  0000 C CNN
+F 2 "Package_QFP:LQFP-64_10x10mm_P0.5mm" H 5500 4000 50  0001 R CNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00039193.pdf" H 6000 5700 50  0001 C CNN
+	1    6000 5700
+	1    0    0    -1  
+$EndComp
+Text Label 7200 4200 2    50   ~ 0
+T_IRQ
+Wire Wire Line
+	6600 4200 7200 4200
+Text Label 7200 4700 2    50   ~ 0
+T_CS
+Text Label 7200 7100 2    50   ~ 0
+T_CLK
+Wire Wire Line
+	6600 7100 7200 7100
+Text Label 7200 7200 2    50   ~ 0
+T_DO
+Wire Wire Line
+	6600 7200 7200 7200
+Text Label 7200 7300 2    50   ~ 0
+T_DIN
+Wire Wire Line
+	6600 7300 7200 7300
+$Comp
+L Connector:Conn_01x04_Female J?
+U 1 1 5DC31D97
+P 9950 10000
+F 0 "J?" H 9050 9950 50  0000 C CNN
+F 1 "Conn_01x04_Female" H 9050 9850 50  0000 C CNN
+F 2 "" H 9950 10000 50  0001 C CNN
+F 3 "~" H 9950 10000 50  0001 C CNN
+	1    9950 10000
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	10150 9900 10400 9900
+Wire Wire Line
+	10150 10000 10400 10000
+Wire Wire Line
+	10150 10100 10400 10100
+Wire Wire Line
+	10150 10200 10400 10200
+Text Label 10400 10100 2    50   ~ 0
+T_DIN
+Text Label 10400 9900 2    50   ~ 0
+T_CLK
+Text Label 10400 10000 2    50   ~ 0
+T_DO
+Text Label 10400 10200 2    50   ~ 0
+SD_CS
+Text Label 7200 7000 2    50   ~ 0
+SD_CS
+Text Label 7200 4500 2    50   ~ 0
+LCD_CS
+Text Notes 8250 9700 0    50   ~ 0
+Touchscreen Header\n
+Text Notes 9800 9700 0    50   ~ 0
+SD Card Header\n
+$Comp
+L power:GND #PWR?
+U 1 1 5DC5CA25
+P 9250 10400
+F 0 "#PWR?" H 9250 10150 50  0001 C CNN
+F 1 "GND" V 9300 10500 50  0000 C CNN
+F 2 "" H 9250 10400 50  0001 C CNN
+F 3 "" H 9250 10400 50  0001 C CNN
+	1    9250 10400
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8500 10400 9250 10400
+$Comp
+L Device:R R?
+U 1 1 5DC674D7
+P 12100 10100
+F 0 "R?" H 12170 10146 50  0000 L CNN
+F 1 "330k" H 12170 10055 50  0000 L CNN
+F 2 "" V 12030 10100 50  0001 C CNN
+F 3 "~" H 12100 10100 50  0001 C CNN
+	1    12100 10100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5DC67C4F
+P 12400 10500
+F 0 "R?" H 12470 10546 50  0000 L CNN
+F 1 "100k" H 12470 10455 50  0000 L CNN
+F 2 "" V 12330 10500 50  0001 C CNN
+F 3 "~" H 12400 10500 50  0001 C CNN
+	1    12400 10500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	11950 10100 11700 10100
+Wire Wire Line
+	11700 10100 11700 9950
+Wire Wire Line
+	12250 10100 12400 10100
+Wire Wire Line
+	12400 10100 12400 10350
+Wire Wire Line
+	12400 10650 12400 10950
+$Comp
+L power:GND #PWR?
+U 1 1 5DC84D9E
+P 12400 10950
+F 0 "#PWR?" H 12400 10700 50  0001 C CNN
+F 1 "GND" H 12405 10777 50  0000 C CNN
+F 2 "" H 12400 10950 50  0001 C CNN
+F 3 "" H 12400 10950 50  0001 C CNN
+	1    12400 10950
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR?
+U 1 1 5DC851A2
+P 11700 9950
+F 0 "#PWR?" H 11700 9800 50  0001 C CNN
+F 1 "VDD" H 11717 10123 50  0000 C CNN
+F 2 "" H 11700 9950 50  0001 C CNN
+F 3 "" H 11700 9950 50  0001 C CNN
+	1    11700 9950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	12400 10100 12700 10100
+Connection ~ 12400 10100
+Text Notes 10650 3550 0    50   ~ 0
+-Voltage divider input\n\n
+$Comp
+L Transistor_FET:FDS6898A Q?
+U 1 1 5DC92BC8
+P 15650 7250
+F 0 "Q?" H 15850 7100 50  0000 L CNN
+F 1 "FDS6898A" H 15800 7000 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 15850 7175 50  0001 L CIN
+F 3 "http://www.fairchildsemi.com/ds/FD/FDS6898A.pdf" H 15650 7250 50  0001 L CNN
+	1    15650 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:FDS6898A Q?
+U 1 1 5DC94D36
+P 17050 7250
+F 0 "Q?" H 17250 7100 50  0000 L CNN
+F 1 "FDS6898A" H 17200 7000 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 17250 7175 50  0001 L CIN
+F 3 "http://www.fairchildsemi.com/ds/FD/FDS6898A.pdf" H 17050 7250 50  0001 L CNN
+	1    17050 7250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Transistor_FET:FDS6898A Q?
+U 2 1 5DC978DB
+P 17800 7250
+F 0 "Q?" H 18000 7100 50  0000 L CNN
+F 1 "FDS6898A" H 17950 7000 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 18000 7175 50  0001 L CIN
+F 3 "http://www.fairchildsemi.com/ds/FD/FDS6898A.pdf" H 17800 7250 50  0001 L CNN
+	2    17800 7250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	15750 7450 15750 7600
+Wire Wire Line
+	15750 7600 16400 7600
+Wire Wire Line
+	17900 7600 17900 7450
+Wire Wire Line
+	16400 7450 16400 7600
+Connection ~ 16400 7600
+Wire Wire Line
+	16400 7600 16700 7600
+Wire Wire Line
+	17150 7600 17150 7450
+Connection ~ 17150 7600
+Wire Wire Line
+	17150 7600 17900 7600
+$Comp
+L power:GND #PWR?
+U 1 1 5DCE3984
+P 16700 7700
+F 0 "#PWR?" H 16700 7450 50  0001 C CNN
+F 1 "GND" H 16705 7527 50  0000 C CNN
+F 2 "" H 16700 7700 50  0001 C CNN
+F 3 "" H 16700 7700 50  0001 C CNN
+	1    16700 7700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	16700 7700 16700 7600
+Connection ~ 16700 7600
+Wire Wire Line
+	16700 7600 17150 7600
+Wire Wire Line
+	15450 7250 15250 7250
+Wire Wire Line
+	16100 7250 15900 7250
+Wire Wire Line
+	16850 7250 16600 7250
+Wire Wire Line
+	17600 7250 17350 7250
+Text Label 15250 7250 0    50   ~ 0
+sGreen
+Text Label 15900 7250 0    50   ~ 0
+sYellow
+Text Label 16600 7250 0    50   ~ 0
+sRed
+Text Label 17350 7250 0    50   ~ 0
+Buzzer
+Text Label 5000 5800 0    50   ~ 0
+sGreen
+$Comp
+L Transistor_FET:FDS6898A Q?
+U 2 1 5DC93DAB
+P 16300 7250
+F 0 "Q?" H 16500 7100 50  0000 L CNN
+F 1 "FDS6898A" H 16450 7000 50  0000 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 16500 7175 50  0001 L CIN
+F 3 "http://www.fairchildsemi.com/ds/FD/FDS6898A.pdf" H 16300 7250 50  0001 L CNN
+	2    16300 7250
+	1    0    0    -1  
+$EndComp
+Text Label 5000 5900 0    50   ~ 0
+sYellow
+Text Label 5000 6000 0    50   ~ 0
+sRed
+Text Label 5000 6100 0    50   ~ 0
+Buzzer
+Wire Wire Line
+	5000 5800 5400 5800
+Wire Wire Line
+	5000 5900 5400 5900
+Wire Wire Line
+	5000 6000 5400 6000
+Wire Wire Line
+	5000 6100 5400 6100
+Wire Wire Line
+	15750 7050 15750 6900
+Wire Wire Line
+	15750 6900 15500 6900
+Wire Wire Line
+	16400 7050 16400 6900
+Wire Wire Line
+	16400 6900 16150 6900
+Wire Wire Line
+	17150 7050 17150 6900
+Wire Wire Line
+	17150 6900 16850 6900
+Wire Wire Line
+	17900 7050 17900 6900
+Wire Wire Line
+	17900 6900 17550 6900
+Text Label 17050 8550 2    50   ~ 0
+sGreeni
+Text Label 17050 8650 2    50   ~ 0
+sYellowi
+Text Label 17050 8750 2    50   ~ 0
+sRedi
+Wire Wire Line
+	16700 8750 17050 8750
+Wire Wire Line
+	16700 8650 17050 8650
+Wire Wire Line
+	16700 8550 17050 8550
+$Comp
+L Connector:Conn_01x04_Female J?
+U 1 1 5DE1080E
+P 16500 8550
+F 0 "J?" H 15600 8500 50  0000 C CNN
+F 1 "Conn_01x04_Female" H 15550 8400 50  0000 C CNN
+F 2 "" H 16500 8550 50  0001 C CNN
+F 3 "~" H 16500 8550 50  0001 C CNN
+	1    16500 8550
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	16700 8450 17050 8450
+Wire Wire Line
+	17050 8450 17050 8350
+$Comp
+L power:+12V #PWR?
+U 1 1 5DECED5B
+P 17050 8350
+F 0 "#PWR?" H 17050 8200 50  0001 C CNN
+F 1 "+12V" H 17065 8523 50  0000 C CNN
+F 2 "" H 17050 8350 50  0001 C CNN
+F 3 "" H 17050 8350 50  0001 C CNN
+	1    17050 8350
+	1    0    0    -1  
+$EndComp
+Text Label 15500 6900 0    50   ~ 0
+sGreeni
+Text Label 16150 6900 0    50   ~ 0
+sYellowi
+Text Label 16850 6900 0    50   ~ 0
+sRedi
+Text Notes 10650 3550 0    50   ~ 0
+-Make sure buzzer is on PCB\n
+Text Notes 10650 3650 0    50   ~ 0
+-Final sd card decision\n
 $EndSCHEMATC
