@@ -1,0 +1,11 @@
+(module REVISION (layer F.Cu) (tedit 0)
+  (fp_text reference U$1 (at 0 0) (layer F.SilkS) hide
+    (effects (font (size 1.27 1.27) (thickness 0.15)))
+  )
+  (fp_text value REVISION (at 0 0) (layer F.SilkS) hide
+    (effects (font (size 1.27 1.27) (thickness 0.15)))
+  )
+  (fp_text user "Revision By: " (at 0 0) (layer F.Fab)
+    (effects (font (size 1.6891 1.6891) (thickness 0.14224)) (justify left bottom))
+  )
+)
