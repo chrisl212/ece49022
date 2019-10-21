@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:DriveSystem-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
@@ -1226,13 +1226,13 @@ Wire Wire Line
 	10100 7150 9850 7150
 Wire Wire Line
 	10850 7150 10600 7150
-Text Label 8500 7150 0    50   ~ 0
-sGreen
 Text Label 9150 7150 0    50   ~ 0
+sGreen
+Text Label 8500 7150 0    50   ~ 0
 sYellow
-Text Label 9850 7150 0    50   ~ 0
-sRed
 Text Label 10600 7150 0    50   ~ 0
+sRed
+Text Label 9850 7150 0    50   ~ 0
 Buzzer
 Text Label 1150 4200 0    50   ~ 0
 sGreen
@@ -1315,17 +1315,17 @@ F 3 "" H 10300 8250 50  0001 C CNN
 	1    10300 8250
 	1    0    0    -1  
 $EndComp
-Text Label 8750 6800 0    50   ~ 0
-sGreeni
 Text Label 9400 6800 0    50   ~ 0
+sGreeni
+Text Label 8750 6800 0    50   ~ 0
 sYellowi
-Text Label 10100 6800 0    50   ~ 0
+Text Label 10800 6800 0    50   ~ 0
 sRedi
 Text Notes 6650 1700 0    50   ~ 0
 -Make sure buzzer is on PCB\n
 Text Notes 6650 1800 0    50   ~ 0
 -Final sd card decision\n
-Text Notes 9400 6550 0    50   ~ 0
+Text Notes 8100 6450 0    50   ~ 0
 Stack Light / Buzzer MOSFETs\n
 Text Notes 9700 8000 0    50   ~ 0
 Stack Light Header\n
@@ -1668,29 +1668,29 @@ Text Notes 6150 5400 0    50   ~ 0
 $Comp
 L Device:Buzzer BZ1
 U 1 1 5DD3DCBB
-P 10900 6550
-F 0 "BZ1" H 11052 6579 50  0000 L CNN
-F 1 "Buzzer" H 11052 6488 50  0000 L CNN
-F 2 "RoboPicasso:Mallory-PK-27H25PQ-Buzzer" V 10875 6650 50  0001 C CNN
-F 3 "~" V 10875 6650 50  0001 C CNN
-	1    10900 6550
+P 10200 6550
+F 0 "BZ1" H 10352 6579 50  0000 L CNN
+F 1 "Buzzer" H 10352 6488 50  0000 L CNN
+F 2 "RoboPicasso:Mallory-PK-27H25PQ-Buzzer" V 10175 6650 50  0001 C CNN
+F 3 "~" V 10175 6650 50  0001 C CNN
+	1    10200 6550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10800 6650 10800 6800
+	10100 6650 10100 6800
 $Comp
 L power:+12V #PWR044
 U 1 1 5DD4EA95
-P 10800 6350
-F 0 "#PWR044" H 10800 6200 50  0001 C CNN
-F 1 "+12V" H 10815 6523 50  0000 C CNN
-F 2 "" H 10800 6350 50  0001 C CNN
-F 3 "" H 10800 6350 50  0001 C CNN
-	1    10800 6350
+P 10100 6350
+F 0 "#PWR044" H 10100 6200 50  0001 C CNN
+F 1 "+12V" H 10115 6523 50  0000 C CNN
+F 2 "" H 10100 6350 50  0001 C CNN
+F 3 "" H 10100 6350 50  0001 C CNN
+	1    10100 6350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10800 6350 10800 6450
+	10100 6350 10100 6450
 $Comp
 L Regulator_Linear:LM2936-3.3_TO92 U4
 U 1 1 5DD687C8
@@ -1703,7 +1703,7 @@ F 3 "http://www.ti.com/lit/ds/symlink/lm2936.pdf" H 6600 5650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L LoadCell:HX711 U5
+L DriveSystem-rescue:HX711-LoadCell U5
 U 1 1 5DDA517A
 P 13800 4900
 F 0 "U5" H 13950 6315 50  0000 C CNN
