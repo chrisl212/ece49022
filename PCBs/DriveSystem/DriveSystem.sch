@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:DriveSystem-cache
-EELAYER 30 0
+EELAYER 29 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
@@ -1666,32 +1666,6 @@ Connection ~ 6050 5700
 Text Notes 6150 5400 0    50   ~ 0
 3V Regulator (REPLACE)
 $Comp
-L Device:Buzzer BZ1
-U 1 1 5DD3DCBB
-P 10200 6550
-F 0 "BZ1" H 10352 6579 50  0000 L CNN
-F 1 "Buzzer" H 10352 6488 50  0000 L CNN
-F 2 "RoboPicasso:Mallory-PK-27H25PQ-Buzzer" V 10175 6650 50  0001 C CNN
-F 3 "~" V 10175 6650 50  0001 C CNN
-	1    10200 6550
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	10100 6650 10100 6800
-$Comp
-L power:+12V #PWR044
-U 1 1 5DD4EA95
-P 10100 6350
-F 0 "#PWR044" H 10100 6200 50  0001 C CNN
-F 1 "+12V" H 10115 6523 50  0000 C CNN
-F 2 "" H 10100 6350 50  0001 C CNN
-F 3 "" H 10100 6350 50  0001 C CNN
-	1    10100 6350
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	10100 6350 10100 6450
-$Comp
 L Regulator_Linear:LM2936-3.3_TO92 U4
 U 1 1 5DD687C8
 P 6600 5700
@@ -2199,4 +2173,179 @@ Wire Wire Line
 	4800 5350 5000 5350
 Text Notes 13500 1100 0    50   ~ 0
 -Switch BIN1 and BIN2 in the software\n
+$Comp
+L Connector:Conn_01x02_Male J14
+U 1 1 5E5C774B
+P 11100 8400
+F 0 "J14" H 11208 8581 50  0000 C CNN
+F 1 "Conn_01x02_Male" H 11208 8490 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 11100 8400 50  0001 C CNN
+F 3 "~" H 11100 8400 50  0001 C CNN
+	1    11100 8400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	11300 8500 11500 8500
+$Comp
+L power:+12V #PWR0101
+U 1 1 5E5F7F08
+P 11600 8350
+F 0 "#PWR0101" H 11600 8200 50  0001 C CNN
+F 1 "+12V" H 11615 8523 50  0000 C CNN
+F 2 "" H 11600 8350 50  0001 C CNN
+F 3 "" H 11600 8350 50  0001 C CNN
+	1    11600 8350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	11600 8350 11600 8400
+Wire Wire Line
+	11300 8400 11600 8400
+Text Label 10100 6800 0    50   ~ 0
+Buzz
+Text Label 11500 8500 2    50   ~ 0
+Buzz
+Wire Wire Line
+	2750 3700 3350 3700
+Text Label 3350 3700 2    50   ~ 0
+PA12
+Text Label 3350 4200 2    50   ~ 0
+PB0
+Wire Wire Line
+	3350 4200 2750 4200
+Text Label 3350 4300 2    50   ~ 0
+PB1
+Wire Wire Line
+	3350 4300 2750 4300
+Text Label 3350 4400 2    50   ~ 0
+PB2
+Text Label 3350 4500 2    50   ~ 0
+PB3
+Text Label 3350 4600 2    50   ~ 0
+PB4
+Text Label 3350 4700 2    50   ~ 0
+PB5
+Text Label 3350 5200 2    50   ~ 0
+PB10
+Text Label 3350 5300 2    50   ~ 0
+PB11
+Text Label 1150 3300 0    50   ~ 0
+PF0
+Text Label 1150 3400 0    50   ~ 0
+PF1
+Text Label 1150 3500 0    50   ~ 0
+PF4
+Text Label 1150 3600 0    50   ~ 0
+PF5
+Text Label 1150 3700 0    50   ~ 0
+PF6
+Text Label 1150 3800 0    50   ~ 0
+PF7
+Text Label 1150 4000 0    50   ~ 0
+PD2
+Text Label 1150 4600 0    50   ~ 0
+PC4
+Text Label 1150 5100 0    50   ~ 0
+PC9
+Wire Wire Line
+	1150 5100 1550 5100
+Wire Wire Line
+	1150 4600 1550 4600
+Wire Wire Line
+	1550 3800 1150 3800
+Wire Wire Line
+	1150 4000 1550 4000
+Wire Wire Line
+	1150 3700 1550 3700
+Wire Wire Line
+	1550 3600 1150 3600
+Wire Wire Line
+	1150 3500 1550 3500
+Wire Wire Line
+	1550 3400 1150 3400
+Wire Wire Line
+	1150 3300 1550 3300
+Text Label 1150 5200 0    50   ~ 0
+PC10
+Text Label 1150 5300 0    50   ~ 0
+PC11
+Text Label 1150 5400 0    50   ~ 0
+PC12
+Text Label 1150 5500 0    50   ~ 0
+PC13
+Text Label 1150 5600 0    50   ~ 0
+PC14
+Text Label 1150 5700 0    50   ~ 0
+PC15
+Wire Wire Line
+	1150 5700 1550 5700
+Wire Wire Line
+	1550 5600 1150 5600
+Wire Wire Line
+	1150 5500 1550 5500
+Wire Wire Line
+	1550 5400 1150 5400
+Wire Wire Line
+	1150 5300 1550 5300
+Wire Wire Line
+	1550 5200 1150 5200
+Text Label 1150 4700 0    50   ~ 0
+PC5
+Wire Wire Line
+	1550 4700 1150 4700
+Wire Wire Line
+	2750 5300 3350 5300
+Wire Wire Line
+	3350 5200 2750 5200
+Wire Wire Line
+	2750 5000 3350 5000
+Wire Wire Line
+	3350 4700 2750 4700
+Wire Wire Line
+	2750 4600 3350 4600
+Wire Wire Line
+	3350 4500 2750 4500
+Wire Wire Line
+	2750 4400 3350 4400
+Wire Wire Line
+	7850 8200 8200 8200
+Wire Wire Line
+	7850 8300 8200 8300
+Wire Wire Line
+	7850 8400 8200 8400
+Wire Wire Line
+	7850 8500 8200 8500
+Wire Wire Line
+	7850 8600 8200 8600
+Text Label 8200 8200 2    50   ~ 0
+PB11
+Text Label 8200 8300 2    50   ~ 0
+PB10
+Text Label 8200 8400 2    50   ~ 0
+PB2
+Text Label 8200 8500 2    50   ~ 0
+PB1
+Text Label 8200 8600 2    50   ~ 0
+PB0
+Text Label 3350 5000 2    50   ~ 0
+SV_FB
+$Comp
+L Connector:Conn_01x07_Female J15
+U 1 1 5EC33544
+P 7650 8500
+F 0 "J15" H 7678 8526 50  0000 L CNN
+F 1 "Conn_01x07_Female" H 7678 8435 50  0000 L CNN
+F 2 "" H 7650 8500 50  0001 C CNN
+F 3 "~" H 7650 8500 50  0001 C CNN
+	1    7650 8500
+	-1   0    0    -1  
+$EndComp
+Text Label 8200 8700 2    50   ~ 0
+PC5
+Text Label 8200 8800 2    50   ~ 0
+PC4
+Wire Wire Line
+	7850 8700 8200 8700
+Wire Wire Line
+	7850 8800 8200 8800
 $EndSCHEMATC

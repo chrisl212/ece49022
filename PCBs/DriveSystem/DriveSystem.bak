@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:DriveSystem-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
@@ -63,13 +63,13 @@ $EndComp
 $Comp
 L Connector:Screw_Terminal_01x02 J6
 U 1 1 5DA7004C
-P 6600 3300
-F 0 "J6" H 6680 3292 50  0000 L CNN
-F 1 "Screw_Terminal_01x02" H 6680 3201 50  0000 L CNN
-F 2 "TerminalBlock_4Ucon:TerminalBlock_4Ucon_1x02_P3.50mm_Horizontal" H 6600 3300 50  0001 C CNN
-F 3 "~" H 6600 3300 50  0001 C CNN
-	1    6600 3300
-	1    0    0    -1  
+P 6600 3400
+F 0 "J6" H 6680 3392 50  0000 L CNN
+F 1 "Screw_Terminal_01x02" H 6680 3301 50  0000 L CNN
+F 2 "TerminalBlock_4Ucon:TerminalBlock_4Ucon_1x02_P3.50mm_Horizontal" H 6600 3400 50  0001 C CNN
+F 3 "~" H 6600 3400 50  0001 C CNN
+	1    6600 3400
+	1    0    0    1   
 $EndComp
 Wire Wire Line
 	7950 2800 7950 2850
@@ -282,9 +282,9 @@ Text Label 3350 3300 2    50   ~ 0
 AIN1
 Text Label 3350 3400 2    50   ~ 0
 AIN2
-Text Label 3350 3500 2    50   ~ 0
-BIN1
 Text Label 3350 3600 2    50   ~ 0
+BIN1
+Text Label 3350 3500 2    50   ~ 0
 BIN2
 Text Label 3350 5100 2    50   ~ 0
 TRIG
@@ -394,7 +394,7 @@ L Connector:Conn_01x04_Male J7
 U 1 1 5DA8B5A2
 P 8450 4800
 F 0 "J7" H 8300 5100 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 8300 5000 50  0000 C CNN
+F 1 "Right_Ultrasonic" H 8300 5000 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8450 4800 50  0001 C CNN
 F 3 "~" H 8450 4800 50  0001 C CNN
 	1    8450 4800
@@ -405,7 +405,7 @@ L Connector:Conn_01x04_Male J8
 U 1 1 5DA8BAA6
 P 8450 5550
 F 0 "J8" H 8300 5850 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 8300 5750 50  0000 C CNN
+F 1 "Left_Ultrasonic" H 8300 5750 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8450 5550 50  0001 C CNN
 F 3 "~" H 8450 5550 50  0001 C CNN
 	1    8450 5550
@@ -538,7 +538,7 @@ L Connector:Conn_01x05_Male J1
 U 1 1 5DAA0C45
 P 1550 7150
 F 0 "J1" H 1658 7531 50  0000 C CNN
-F 1 "Conn_01x05_Male" H 1658 7440 50  0000 C CNN
+F 1 "SWD_Header" H 1658 7440 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 1550 7150 50  0001 C CNN
 F 3 "~" H 1550 7150 50  0001 C CNN
 	1    1550 7150
@@ -957,7 +957,7 @@ L Connector:Conn_01x14_Female J2
 U 1 1 5DAC81F6
 P 2000 8800
 F 0 "J2" H 2028 8776 50  0000 L CNN
-F 1 "Conn_01x14_Female" H 2028 8685 50  0000 L CNN
+F 1 "Touchscreen_Header" H 2028 8685 50  0000 L CNN
 F 2 "Connector_PinSocket_2.54mm:PinSocket_1x14_P2.54mm_Vertical" H 2000 8800 50  0001 C CNN
 F 3 "~" H 2000 8800 50  0001 C CNN
 	1    2000 8800
@@ -1064,7 +1064,7 @@ L Connector:Conn_01x04_Female J3
 U 1 1 5DC31D97
 P 3650 8300
 F 0 "J3" H 2750 8250 50  0000 C CNN
-F 1 "Conn_01x04_Female" H 2750 8150 50  0000 C CNN
+F 1 "SD_Card_Header" H 2750 8150 50  0000 C CNN
 F 2 "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical" H 3650 8300 50  0001 C CNN
 F 3 "~" H 3650 8300 50  0001 C CNN
 	1    3650 8300
@@ -1226,13 +1226,13 @@ Wire Wire Line
 	10100 7150 9850 7150
 Wire Wire Line
 	10850 7150 10600 7150
-Text Label 8500 7150 0    50   ~ 0
-sGreen
 Text Label 9150 7150 0    50   ~ 0
+sGreen
+Text Label 8500 7150 0    50   ~ 0
 sYellow
-Text Label 9850 7150 0    50   ~ 0
-sRed
 Text Label 10600 7150 0    50   ~ 0
+sRed
+Text Label 9850 7150 0    50   ~ 0
 Buzzer
 Text Label 1150 4200 0    50   ~ 0
 sGreen
@@ -1294,7 +1294,7 @@ L Connector:Conn_01x04_Female J10
 U 1 1 5DE1080E
 P 9750 8450
 F 0 "J10" H 8850 8400 50  0000 C CNN
-F 1 "Conn_01x04_Female" H 8800 8300 50  0000 C CNN
+F 1 "Stack_Light" H 8800 8300 50  0000 C CNN
 F 2 "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical" H 9750 8450 50  0001 C CNN
 F 3 "~" H 9750 8450 50  0001 C CNN
 	1    9750 8450
@@ -1315,17 +1315,17 @@ F 3 "" H 10300 8250 50  0001 C CNN
 	1    10300 8250
 	1    0    0    -1  
 $EndComp
-Text Label 8750 6800 0    50   ~ 0
-sGreeni
 Text Label 9400 6800 0    50   ~ 0
+sGreeni
+Text Label 8750 6800 0    50   ~ 0
 sYellowi
-Text Label 10100 6800 0    50   ~ 0
+Text Label 10800 6800 0    50   ~ 0
 sRedi
 Text Notes 6650 1700 0    50   ~ 0
 -Make sure buzzer is on PCB\n
 Text Notes 6650 1800 0    50   ~ 0
 -Final sd card decision\n
-Text Notes 9400 6550 0    50   ~ 0
+Text Notes 8100 6450 0    50   ~ 0
 Stack Light / Buzzer MOSFETs\n
 Text Notes 9700 8000 0    50   ~ 0
 Stack Light Header\n
@@ -1366,7 +1366,7 @@ L Connector:Conn_01x06_Male J9
 U 1 1 5DAD0264
 P 9750 4850
 F 0 "J9" H 9858 5231 50  0000 C CNN
-F 1 "Conn_01x06_Male" H 9858 5140 50  0000 C CNN
+F 1 "IMU_Header" H 9858 5140 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 9750 4850 50  0001 C CNN
 F 3 "~" H 9750 4850 50  0001 C CNN
 	1    9750 4850
@@ -1500,7 +1500,7 @@ L Connector:Conn_01x03_Male J4
 U 1 1 5DB8CAEC
 P 4500 5250
 F 0 "J4" H 4150 5500 50  0000 C CNN
-F 1 "Conn_01x03_Male" H 4150 5400 50  0000 C CNN
+F 1 "Input_12V" H 4150 5400 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 4500 5250 50  0001 C CNN
 F 3 "~" H 4500 5250 50  0001 C CNN
 	1    4500 5250
@@ -1551,7 +1551,7 @@ L Connector:Conn_01x03_Male J11
 U 1 1 5DC1F85E
 P 9900 5850
 F 0 "J11" H 9750 6150 50  0000 C CNN
-F 1 "Conn_01x03_Male" H 9750 6050 50  0000 C CNN
+F 1 "LPS_Header" H 9750 6050 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 9900 5850 50  0001 C CNN
 F 3 "~" H 9900 5850 50  0001 C CNN
 	1    9900 5850
@@ -1668,29 +1668,29 @@ Text Notes 6150 5400 0    50   ~ 0
 $Comp
 L Device:Buzzer BZ1
 U 1 1 5DD3DCBB
-P 10900 6550
-F 0 "BZ1" H 11052 6579 50  0000 L CNN
-F 1 "Buzzer" H 11052 6488 50  0000 L CNN
-F 2 "RoboPicasso:Mallory-PK-27H25PQ-Buzzer" V 10875 6650 50  0001 C CNN
-F 3 "~" V 10875 6650 50  0001 C CNN
-	1    10900 6550
+P 10200 6550
+F 0 "BZ1" H 10352 6579 50  0000 L CNN
+F 1 "Buzzer" H 10352 6488 50  0000 L CNN
+F 2 "RoboPicasso:Mallory-PK-27H25PQ-Buzzer" V 10175 6650 50  0001 C CNN
+F 3 "~" V 10175 6650 50  0001 C CNN
+	1    10200 6550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10800 6650 10800 6800
+	10100 6650 10100 6800
 $Comp
 L power:+12V #PWR044
 U 1 1 5DD4EA95
-P 10800 6350
-F 0 "#PWR044" H 10800 6200 50  0001 C CNN
-F 1 "+12V" H 10815 6523 50  0000 C CNN
-F 2 "" H 10800 6350 50  0001 C CNN
-F 3 "" H 10800 6350 50  0001 C CNN
-	1    10800 6350
+P 10100 6350
+F 0 "#PWR044" H 10100 6200 50  0001 C CNN
+F 1 "+12V" H 10115 6523 50  0000 C CNN
+F 2 "" H 10100 6350 50  0001 C CNN
+F 3 "" H 10100 6350 50  0001 C CNN
+	1    10100 6350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10800 6350 10800 6450
+	10100 6350 10100 6450
 $Comp
 L Regulator_Linear:LM2936-3.3_TO92 U4
 U 1 1 5DD687C8
@@ -1703,7 +1703,7 @@ F 3 "http://www.ti.com/lit/ds/symlink/lm2936.pdf" H 6600 5650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L LoadCell:HX711 U5
+L DriveSystem-rescue:HX711-LoadCell U5
 U 1 1 5DDA517A
 P 13800 4900
 F 0 "U5" H 13950 6315 50  0000 C CNN
@@ -2082,8 +2082,8 @@ $Comp
 L Connector:Conn_01x04_Female J13
 U 1 1 5E1CB908
 P 14400 5550
-F 0 "J13" H 14428 5526 50  0000 L CNN
-F 1 "Conn_01x04_Female" H 14428 5435 50  0000 L CNN
+F 0 "J13" H 14292 5835 50  0000 C CNN
+F 1 "Load_Cell_Header" H 14700 5750 50  0000 C CNN
 F 2 "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical" H 14400 5550 50  0001 C CNN
 F 3 "~" H 14400 5550 50  0001 C CNN
 	1    14400 5550
@@ -2125,7 +2125,7 @@ L Connector:Conn_01x03_Male J12
 U 1 1 5E2A5B0E
 P 13600 6850
 F 0 "J12" H 13450 7150 50  0000 C CNN
-F 1 "Conn_01x03_Male" H 13450 7050 50  0000 C CNN
+F 1 "Servo_Header" H 13450 7050 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 13600 6850 50  0001 C CNN
 F 3 "~" H 13600 6850 50  0001 C CNN
 	1    13600 6850
@@ -2197,4 +2197,6 @@ $EndComp
 Connection ~ 4800 5350
 Wire Wire Line
 	4800 5350 5000 5350
+Text Notes 13500 1100 0    50   ~ 0
+-Switch BIN1 and BIN2 in the software\n
 $EndSCHEMATC
