@@ -24,8 +24,8 @@ COBJ = $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(CSRC))
 
 .PHONY: $(TARGET)
 
-$(TARGET): dir $(TARGET).bin
-dir:
+$(TARGET): $(BUILDDIR) $(TARGET).bin
+$(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 $(COBJ): $(BUILDDIR)/%.o : $(SRCDIR)/%.c
 	mkdir -p $(@D)
