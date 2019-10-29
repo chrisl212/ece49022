@@ -22,9 +22,9 @@ SOBJ = $(patsubst $(SRCDIR)/%.S, $(BUILDDIR)/%.o, $(SSRC))
 CSRC = $(shell find src/ -iname *.c)
 COBJ = $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(CSRC))
 
-.PHONY: $(TARGET)
+.PHONY: all
 
-$(TARGET): $(BUILDDIR) $(TARGET).bin
+all: $(BUILDDIR) $(TARGET).bin
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 $(COBJ): $(BUILDDIR)/%.o : $(SRCDIR)/%.c
