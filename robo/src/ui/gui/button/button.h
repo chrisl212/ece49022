@@ -1,7 +1,7 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "colors/colors.h"
+#include "ui/colors/colors.h"
 #include "ui/text/text.h"
 #include "ui/gui/node/node.h"
 #include "ui/gui/shapes/shapes.h"

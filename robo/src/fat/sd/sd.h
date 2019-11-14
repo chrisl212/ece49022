@@ -4,11 +4,13 @@
 #include <stdint.h>
 
 typedef enum {
-    SD_OKAY,
+    SD_OK,
     SD_UNRECOGNIZED,
     SD_UNKNOWN_VERSION,
     SD_TIMEOUT,
-    SD_READ_ERR
+    SD_READ_ERR,
+    SD_UNKNOWN,
+    SD_SPI
 } sdStatus_t;
 
 typedef enum {

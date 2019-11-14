@@ -3,7 +3,6 @@
 #include "stm32f0xx.h"
 #include "touch.h"
 #include "ui/text/text.h"
-#include "ui/ili9341/ili9341.h"
 #include "ui/ui.h"
 
 #define IRQ (1)
@@ -15,6 +14,8 @@
 #define XMAX (3900)
 #define YMIN (230)
 #define YMAX (3840)
+#define WIDTH (320)
+#define HEIGHT (240)
 
 #define X(x) ((x-XMIN)*WIDTH/(XMAX-XMIN))
 #define Y(y) ((y-YMIN)*HEIGHT/(YMAX-YMIN))

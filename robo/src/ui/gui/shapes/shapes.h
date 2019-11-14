@@ -1,7 +1,7 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
-#include "colors/colors.h"
+#include "ui/colors/colors.h"
 
 typedef struct {
     color_t fillColor;

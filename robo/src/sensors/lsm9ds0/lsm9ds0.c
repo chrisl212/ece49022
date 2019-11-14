@@ -1,6 +1,6 @@
-#include "math/math.h"
 #include "lsm9ds0.h"
-#include "nav/i2c/i2c.h"
+#include "math/math.h"
+#include "i2c/i2c.h"
 
 static int i2c_err;
 

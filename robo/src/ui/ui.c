@@ -8,7 +8,7 @@
 #include "text/text.h"
 #include "colors/colors.h"
 #include "gui/gui.h"
-#include "touch/touch.h"
+#include "sensors/sensors.h"
 #include "ui.h"
 
 #define ROW (2)
@@ -24,7 +24,7 @@ void ui_setup(void) {
 
     ili9341_init();
 
-    if ((err = fat_init(&root)) != FAT_OKAY) {
+    if ((err = fat_init(&root)) != FAT_OK) {
         state_set(STATE_ERR);
         state_setErrorMessage(fat_error(err));
         ui_draw();

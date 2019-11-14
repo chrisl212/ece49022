@@ -4,12 +4,10 @@
 #include "nav.h"
 #include "lps/lps.h"
 #include "state/state.h"
-#include "ui/stack/stack.h"
 #include "ui/ui.h"
-#include "battery/battery.h"
 #include "math/math.h"
-#include "lsm9ds0/lsm9ds0.h"
 #include "drive/drive.h"
+#include "sensors/sensors.h"
 
 #define SAMPLES (10)
 
@@ -49,11 +47,6 @@ void TIM14_IRQHandler(void) {
         tmpHead = 0;
     }
     nav_move(NULL, NULL, &p);
-    if (p) {
-        stack_on(STACK_YEL);
-    } else {
-        stack_off(STACK_YEL);
-    }
     drive_move();
     TIM14->SR &= ~(TIM_SR_UIF);
 }

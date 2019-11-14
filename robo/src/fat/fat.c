@@ -23,13 +23,14 @@ struct {
 
 uint8_t buf[SECTOR];
 uint32_t lbaLast = 0xFFFFFFFF;
+static int sdError;
 
 static int _fat_readSector(sdCard_t card, uint32_t lba) {
     if (lba != lbaLast) {
         lbaLast = lba;
         return sd_readSector(card, lba, buf);
     }
-    return SD_OKAY;
+    return SD_OK;
 }
 
 static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
@@ -44,12 +45,9 @@ static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
 }
 
 static int _readMBR(sdCard_t card) {
-    int status;
-
-    status = _fat_readSector(card, 0x0);
-    if (status != SD_OKAY) {
-        sd_error(status);
-        return FAT_MBR;
+    sdError = _fat_readSector(card, 0x0);
+    if (sdError != SD_OK) {
+        return FAT_SPI;
     }
 
     _partInfo.type = buf[450];
@@ -62,16 +60,13 @@ static int _readMBR(sdCard_t card) {
         return FAT_MBR;
     }
 
-    return FAT_OKAY;
+    return FAT_OK;
 }
 
 static int _readVolumeID(sdCard_t card) {
-    int status;
-
-    status = _fat_readSector(card, _partInfo.lba);
-    if (status != SD_OKAY) {
-        sd_error(status);
-        return FAT_VOLID;
+    sdError = _fat_readSector(card, _partInfo.lba);
+    if (sdError != SD_OK) {
+        return FAT_SPI;
     }
 
     _volumeID.bytesPerSector = _combine(16, buf, 0x0B);
@@ -86,21 +81,23 @@ static int _readVolumeID(sdCard_t card) {
     if (_volumeID.signature != 0xAA55) {
         return FAT_VOLID;
     }
-    return FAT_OKAY;
+    return FAT_OK;
 }
 
 int fat_init(fatFile_t *root) {
     int timeout = 0;
+    int s;
 
-    while (sd_init(&root->card) != SD_OKAY && timeout++ < TIMEOUT);
-    if (timeout == TIMEOUT) {
-        return FAT_TIMEOUT;
+    while ((sdError = sd_init(&root->card)) != SD_OK) {
+        if (++timeout == TIMEOUT) {
+            return FAT_SPI;
+        }
     }
-    if (_readMBR(root->card)) {
-        return FAT_MBR;
+    if ((s = _readMBR(root->card)) != FAT_OK) {
+        return s;
     }
-    if (_readVolumeID(root->card)) {
-        return FAT_VOLID;
+    if ((s = _readVolumeID(root->card)) != FAT_OK) {
+        return s;
     }
     root->name[0] = '/';
     root->name[1] = 0;
@@ -108,7 +105,7 @@ int fat_init(fatFile_t *root) {
     root->attrib = DIRECTORY;
     root->firstCluster = _volumeID.rootDirectoryCluster;
     root->size = 0;
-    return FAT_OKAY;
+    return FAT_OK;
 }
 
 static uint32_t _clusterToLBA(uint32_t cluster) {
@@ -181,7 +178,7 @@ int fat_getNextFile(fatFile_t *dir, fatFile_t *next) {
     next->size = _combine(32, entry, 0x1C);
     next->card = dir->card;
 
-    return FAT_OKAY;
+    return FAT_OK;
 }
 
 int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
@@ -201,9 +198,9 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
     }
     lba += sectorIdx;
 
-    status = _fat_readSector(f->card, lba);
-    if (status != SD_OKAY) {
-        return FAT_UNKNOWN;
+    sdError = _fat_readSector(f->card, lba);
+    if (sdError != SD_OK) {
+        return FAT_SPI;
     }
     for (i = 0; i < len; i++) {
         b[i] = buf[byteIdx++];
@@ -221,19 +218,19 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
             } else {
                 lba += 1;
             }
-            status = _fat_readSector(f->card, lba);
-            if (status != SD_OKAY) {
-                return FAT_UNKNOWN;
+            sdError = _fat_readSector(f->card, lba);
+            if (sdError != SD_OK) {
+                return FAT_SPI;
             }
             byteIdx = 0;
         }
     }
-    return FAT_OKAY;
+    return FAT_OK;
 }
 
 char* fat_error(fatStatus_t err) {
     switch (err) {
-        case FAT_OKAY:
+        case FAT_OK:
             return "fat: no error";
         case FAT_MBR:
             return "fat: invalid MBR";
@@ -245,6 +242,8 @@ char* fat_error(fatStatus_t err) {
             return "fat: timeout";
         case FAT_UNKNOWN:
             return "fat: unknown";
+        case FAT_SPI:
+            return sd_error(sdError);
     }
     return "fat: unknown";
 }

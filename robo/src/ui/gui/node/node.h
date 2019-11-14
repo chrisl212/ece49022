@@ -11,6 +11,7 @@ typedef struct {
     void (*touchEvent)(void *, uint16_t, uint16_t);
 } node_t;
 
+void node_touchEvent(node_t *node, uint16_t x, uint16_t y);
 int node_containsPoint(node_t *node, uint16_t x, uint16_t y);
 
 #endif

@@ -15,9 +15,9 @@ void battery_setup(void) {
     ADC1->CR |= ADC_CR_ADEN;
 }
 
-uint32_t cnt;
-uint32_t sum;
-int prev;
+static uint32_t cnt;
+static uint32_t sum;
+static int prev;
 
 int battery_low(void) {
     ADC1->CHSELR |= 0x1 << 8; //PA0

@@ -14,12 +14,13 @@
 #define RO (0x01)
 
 typedef enum {
-    FAT_OKAY,
+    FAT_OK,
     FAT_MBR,
     FAT_VOLID,
     FAT_EOF,
     FAT_TIMEOUT,
-    FAT_UNKNOWN
+    FAT_UNKNOWN,
+    FAT_SPI
 } fatStatus_t;
 
 typedef struct _fatFile {

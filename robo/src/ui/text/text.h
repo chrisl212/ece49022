@@ -1,7 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "colors/colors.h"
+#include "ui/colors/colors.h"
 #include "font.h"
 
 typedef enum {

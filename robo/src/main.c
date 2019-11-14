@@ -1,11 +1,6 @@
 #include "ui/ui.h"
 #include "state/state.h"
 #include "drive/drive.h"
-#include "drive/collision/collision.h"
-#include "stm32f0xx.h"
-#include "ui/text/text.h"
-#include "fat/fat.h"
-#include "nav/i2c/i2c.h"
 
 int main(void) {
     state_setup();
