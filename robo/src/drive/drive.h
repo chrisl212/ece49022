@@ -8,27 +8,27 @@ void drive_start(void);
 void drive_stop(void);
 
 struct {
-	int integral;
-	int Kp;
-	int Ki;
-	int pwm;
+    int integral;
+    int Kp;
+    int Ki;
+    int pwm;
 } speedPID;
 
 struct {
-	int integral;
-        int lastError;
-        int cnt;
-	int Kp;
-	int Ki;
-        int Kd;
-	int pwm;
+    int integral;
+    int lastError;
+    int cnt;
+    int Kp;
+    int Ki;
+    int Kd;
+    int pwm;
 } headPID;
 
 struct {
-	int rPWM;
-	int lPWM;
-	int rDir;
-	int lDir;
+    int rPWM;
+    int lPWM;
+    int rDir;
+    int lDir;
 } motorOut;
 
 #endif

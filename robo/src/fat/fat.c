@@ -201,7 +201,6 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
     }
     lba += sectorIdx;
 
-    //ui_writeFormat(1, "%d %d %d %d", byteIdx, sectorIdx, clusterIdx, lba);
     status = _fat_readSector(f->card, lba);
     if (status != SD_OKAY) {
         return FAT_UNKNOWN;
@@ -232,26 +231,21 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
     return FAT_OKAY;
 }
 
-void fat_error(fatStatus_t err) {
+char* fat_error(fatStatus_t err) {
     switch (err) {
         case FAT_OKAY:
-            //ui_writeLine(0, "FAT: no error");
-            break;
+            return "fat: no error";
         case FAT_MBR:
-            //ui_writeLine(0, "FAT: invalid MBR");
-            break;
+            return "fat: invalid MBR";
         case FAT_VOLID:
-            //ui_writeLine(0, "FAT: invalid VOL");
-            break;
+            return "fat: invalid volId";
         case FAT_EOF:
-            //ui_writeLine(0, "FAT: eof");
-            break;
+            return "fat: eof";
         case FAT_TIMEOUT:
-            //ui_writeLine(0, "FAT: timeout");
-            break;
+            return "fat: timeout";
         case FAT_UNKNOWN:
-            //ui_writeLine(0, "FAT: unknown");
-            break;
+            return "fat: unknown";
     }
+    return "fat: unknown";
 }
 

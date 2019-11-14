@@ -155,33 +155,34 @@ static void _controller_setup(void) {
 }
 
 void drive_setup(void) {
-        _controller_setup();
-	setup_gpio();
-	setup_pwm();
+    _controller_setup();
+    setup_gpio();
+    setup_pwm();
 
-	//initialize PID controllers
-	//This will be updated when we get the velocity
-	speedPID.integral = 0;
-	speedPID.Kp = 0;
-	speedPID.Ki = 0;
-	speedPID.pwm = MAX_SPEED;
+    //initialize PID controllers
+    //This will be updated when we get the velocity
+    speedPID.integral = 0;
+    speedPID.Kp = 0;
+    speedPID.Ki = 0;
+    speedPID.pwm = MAX_SPEED;
 
-	//Mess with these values
-	headPID.Kp = 900; //Kp = headPID.Kp / 1000
-	headPID.integral = 0;
-	headPID.cnt = 0;
-        headPID.lastError = 0;
-	headPID.Ki = 100; //Kp = headPID.Ki / 1000
-	headPID.Kd = 1500; //Kp = headPID.Ki / 1000
-	headPID.pwm = 0;
-        GPIOC->ODR |= (0x1 << 8);
+    //Mess with these values
+    headPID.Kp = 900; //Kp = headPID.Kp / 1000
+    headPID.integral = 0;
+    headPID.cnt = 0;
+    headPID.lastError = 0;
+    headPID.Ki = 100; //Kp = headPID.Ki / 1000
+    headPID.Kd = 1500; //Kp = headPID.Ki / 1000
+    headPID.pwm = 0;
+    GPIOC->ODR |= (0x1 << 8);
 }
 
 void drive_collision(int c) {
     int s = state_get();
     collide = c;
     if (c) {
-        state_set(STATE_COL);
+        state_set(STATE_ERR);
+        state_setErrorMessage("COLLISION!!!");
     } else {
         state_restore();
     }

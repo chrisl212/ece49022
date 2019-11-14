@@ -9,15 +9,23 @@ typedef struct {
     float z;
 } coord_t;
 
-uint8_t lsm9ds0_read8(uint8_t addr, uint8_t reg);
-void lsm9ds0_write8(uint8_t addr, uint8_t reg, uint8_t data);
-uint8_t lsm9ds0_getAccelID(void);
-uint8_t lsm9ds0_getGyroID(void);
-int8_t lsm9ds0_setup(void);
+typedef enum {
+    LSM9DS0_I2C = -1,
+    LSM9DS0_OK,
+    LSM9DS0_ID,
+    LSM9DS0_TIMEOUT
+} lsm9ds0Status_t;
+
+int lsm9ds0_read8(uint8_t addr, uint8_t reg);
+int lsm9ds0_write8(uint8_t addr, uint8_t reg, uint8_t data);
+int lsm9ds0_getAccelID(void);
+int lsm9ds0_getGyroID(void);
+int lsm9ds0_setup(void);
 coord_t lsm9ds0_getAccel(void);
 coord_t lsm9ds0_getGyro(void);
 coord_t lsm9ds0_getMag(void);
 uint16_t lsm9ds0_getHeading(void);
+char* lsm9ds0_error(lsm9ds0Status_t s);
 
 #define SAD_XM             (0x1E)
 #define SAD_G              (0x6A)

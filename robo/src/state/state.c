@@ -2,8 +2,9 @@
 #include "state.h"
 #include "ui/ui.h"
 
-state_t currentState;
-state_t previousState;
+static state_t currentState;
+static state_t previousState;
+static char *errorMessage;
 
 void state_setup(void) {
     currentState = STATE_WELCOME;
@@ -22,5 +23,13 @@ void state_set(state_t state) {
         previousState = currentState;
     }
     currentState = state;
+}
+
+void state_setErrorMessage(char *s) {
+    errorMessage = s;
+}
+
+char* state_getErrorMessage(void) {
+    return errorMessage;
 }
 

@@ -25,16 +25,17 @@ void TIM14_IRQHandler(void) {
     tmpHead += lsm9ds0_getHeading() - initialHead;
 
 /*    
-    if (battery_low() && state_get() != STATE_BAT) {
-        state_set(STATE_BAT);
+    if (battery_low() && state_get() != STATE_ERR) {
+        state_set(STATE_ERR);
+        state_setErrorMessage("BATTERY LOW!!!");
         ui_draw();
         drive_stop();
         return;
-    } else if (!battery_low() && state_get() == STATE_BAT) {
+    } else if (!battery_low() && state_get() == STATE_ERR) {
         state_restore();
         ui_draw();
         drive_start();
-    } else if (state_get() == STATE_BAT) {
+    } else if (state_get() == STATE_ERR) {
         return;
     } */
 
@@ -57,10 +58,17 @@ void TIM14_IRQHandler(void) {
     TIM14->SR &= ~(TIM_SR_UIF);
 }
 
-void nav_setup(fatFile_t file) {
+int nav_setup(fatFile_t file) {
+    int s;
+
     design = file;
     lps_setup();
-    lsm9ds0_setup();
+    if ((s = lsm9ds0_setup()) != LSM9DS0_OK) {
+        state_set(STATE_ERR);
+        state_setErrorMessage(lsm9ds0_error(s));
+        ui_draw();
+        return s;
+    }
 
     RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
     TIM14->PSC = 4800 - 1;
@@ -71,6 +79,7 @@ void nav_setup(fatFile_t file) {
 
     initialHead = lsm9ds0_getHeading();
     battery_setup();
+    return 0;
 }
 
 static int _getNextCoords(uint16_t *x, uint16_t *y, uint8_t *p) {

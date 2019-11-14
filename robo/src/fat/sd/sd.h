@@ -22,7 +22,7 @@ typedef struct {
 
 int sd_init(sdCard_t *card);
 int sd_readSector(sdCard_t card, uint32_t addr, uint8_t *buf);
-void sd_error(sdStatus_t err);
+char* sd_error(sdStatus_t err);
 
 #endif
 

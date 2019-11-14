@@ -33,8 +33,8 @@ void lps_setup(void) {
     //PA15 AF1 = RX
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
     RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
-    GPIOA->MODER |= (0x2 << (2*RX)) + (0x2 << (2*TX));
-    GPIOA->AFR[1] |= (0x1 << (4*(RX-8))) + (0x1 << (4*(TX-8)));
+    GPIOA->MODER |= (0x2 << (2*RX));// + (0x2 << (2*TX));
+    GPIOA->AFR[1] |= (0x1 << (4*(RX-8)));// + (0x1 << (4*(TX-8)));
 
     USART2->CR1 |= USART_CR1_RXNEIE;
     NVIC->ISER[0] |= 1 << USART2_IRQn;

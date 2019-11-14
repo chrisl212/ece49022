@@ -20,9 +20,16 @@ selectWindow_t selectWindow;
 navWindow_t navWindow;
 
 void ui_setup(void) {
+    int err;
+
     ili9341_init();
 
-    fat_init(&root);
+    if ((err = fat_init(&root)) != FAT_OKAY) {
+        state_set(STATE_ERR);
+        state_setErrorMessage(fat_error(err));
+        ui_draw();
+        return;
+    }
     
     welcomeWindow = welcomeWindow_create();
     selectWindow = selectWindow_create(root);
@@ -53,31 +60,13 @@ void ui_draw(void) {
         stack_on(STACK_YEL);
         ili9341_fillLCD(WHITE);
         text_writeTextAtPoint(f_12x16, "Done!", 0, 160, CENTER);
-    } else if (state_get() == STATE_BAT) {
+    } else if (state_get() == STATE_ERR) {
         stack_on(STACK_RED);
         buzzer_on();
         ili9341_fillLCD(RED);
         text_pushColors();
         text_setColors(WHITE, RED);
-        text_writeTextAtPoint(f_12x16, "BATTERY LOW!!!", 0, 130, CENTER);
-        text_writeTextAtPoint(f_08x08, "Tap anywhere to acknowledge", 0, 160, CENTER);
-        text_popColors();
-    } else if (state_get() == STATE_EMPTY) {
-        stack_on(STACK_RED);
-        buzzer_on();
-        ili9341_fillLCD(RED);
-        text_pushColors();
-        text_setColors(WHITE, RED);
-        text_writeTextAtPoint(f_12x16, "REFILL CAN!!!", 0, 130, CENTER);
-        text_writeTextAtPoint(f_08x08, "Tap anywhere to acknowledge", 0, 160, CENTER);
-        text_popColors();
-    } else if (state_get() == STATE_COL) {
-        stack_on(STACK_RED);
-        buzzer_on();
-        ili9341_fillLCD(RED);
-        text_pushColors();
-        text_setColors(WHITE, RED);
-        text_writeTextAtPoint(f_12x16, "COLLISION DETECTED!!!", 0, 130, CENTER);
+        text_writeTextAtPoint(f_12x16, state_getErrorMessage(), 0, 130, CENTER);
         text_writeTextAtPoint(f_08x08, "Tap anywhere to acknowledge", 0, 160, CENTER);
         text_popColors();
     }
@@ -93,12 +82,7 @@ void ui_touchEvent(int x, int y) {
     } else if (state_get() == STATE_DONE) {
         state_set(STATE_WELCOME);
         ui_draw();
-    } else if (state_get() == STATE_BAT) {
-        buzzer_off();
-    } else if (state_get() == STATE_EMPTY) {
-        state_restore();
-        ui_draw();
-    } else if (state_get() == STATE_COL) {
+    } else if (state_get() == STATE_ERR) {
         buzzer_off();
     }
 }

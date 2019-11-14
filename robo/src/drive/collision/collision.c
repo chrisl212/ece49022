@@ -7,7 +7,7 @@ void setupTIM17(void) {
     //TRIG signal
     RCC->APB2ENR |= RCC_APB2ENR_TIM17EN;
     RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-    GPIOB->MODER |= (0x2 << (2*9)); //enable AF for PA8
+    GPIOB->MODER |= (0x2 << (2*9)); //enable AF for PB9
     GPIOB->AFR[1] |= (0x2 << (4*(9-8)));
     TIM17->PSC = 150 - 1;
     TIM17->ARR = 20000 - 1;
@@ -22,44 +22,35 @@ void setupTIM3(void) {
     //ECHO capture
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    GPIOC->MODER |= (0x2 << (2*6)) + (0x2 << (2*7)); //enable AF for PB3 (TIM3_CH2)
-    TIM3->PSC = 1 - 1;
+    GPIOC->MODER |= /*(0x2 << (2*6))*/ + (0x2 << (2*7)); //enable AF for PC6 and PC7 (TIM3)
+    TIM3->PSC = 8 - 1;
     TIM3->ARR = 0xFFFFFFFF;
-    TIM3->CCMR1 |= TIM_CCMR1_CC2S_0 + TIM_CCMR1_CC1S_0;
-    TIM3->CCER |= TIM_CCER_CC2E + TIM_CCER_CC2P + TIM_CCER_CC2NP + TIM_CCER_CC1E + TIM_CCER_CC1P + TIM_CCER_CC1NP;
+    TIM3->CCMR1 |= TIM_CCMR1_CC2S_0;// + TIM_CCMR1_CC1S_0;
+    TIM3->CCER |= TIM_CCER_CC2E + TIM_CCER_CC2P + TIM_CCER_CC2NP;// + TIM_CCER_CC1E + TIM_CCER_CC1P + TIM_CCER_CC1NP;
     TIM3->DIER |= TIM_DIER_CC2IE;//+ TIM_DIER_CC1IE;
     NVIC->ISER[0] |= 1 << TIM3_IRQn;
     TIM3->CR1 |= TIM_CR1_CEN;
 }
 
-volatile uint32_t signalPolarity = 1;
-volatile uint32_t lastCaptured;
-int cnt = 0;
-double avg = 0.0;
+volatile uint32_t signalPolarity = 0;
+volatile uint32_t lastCaptured, sum, cnt;
 
 void TIM3_IRQHandler(void) {
-    if ((TIM3->SR & TIM_SR_CC2IF) != 0 || (TIM3->SR & TIM_SR_CC1IF) != 0) { // Check interrupt flag is set
-        uint32_t currentCaptured = TIM3->CCR2; // Clears interrupt flag.
+    uint32_t currentCaptured, width, currentDistance;
+
+    if (TIM3->SR & TIM_SR_CC2IF) { // Check interrupt flag is set
+        currentCaptured = TIM3->CCR2; // Clears interrupt flag.
         signalPolarity ^= 1; // Toggle polarity.
         if (signalPolarity == 0) {
-            uint32_t width = currentCaptured - lastCaptured;
-            if (width > 2784000) {
+            width = currentCaptured - lastCaptured;
+            if (width > 40000 || currentCaptured < lastCaptured) {
                 signalPolarity ^= 1;
             } else {
-                double currentDistance = (width / 48.0) / 58.0;
-                avg += currentDistance;
+                currentDistance = 100 * width / (48*58*8);
+                sum += currentDistance;
                 if (++cnt == 10) {
-                    currentDistance = avg / cnt;
-                    cnt = 0;
-                    avg = 0.0;
-                    if (currentDistance < 20.0) {
-                        //stop
-                        drive_collision(1);
-                        text_writeFormatAtPoint(f_12x16, 0, 30, LEFT, "%d", (int)(currentDistance * 100));
-                    } else {
-                        //go
-                        drive_collision(0);
-                    }
+                    drive_collision((sum/cnt) < 20);
+                    sum = cnt = 0;
                 }
             }
         }

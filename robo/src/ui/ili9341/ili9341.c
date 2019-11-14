@@ -21,11 +21,7 @@ int lastX1 = -1;
 int lastY0 = -1;
 int lastY1 = -1;
 
-void nano_wait(uint32_t n) {
-    asm("mov r0,%0\n"
-        "repeat: sub r0,#83\n"
-        "bgt repeat\n" : : "r"(n) : "r0", "cc");
-}
+extern void nano_wait(uint32_t n);
 
 static inline void delay(uint32_t ms) {
     nano_wait(ms * MS);

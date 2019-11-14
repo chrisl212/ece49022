@@ -23,9 +23,10 @@ static void touchEvent(void *node, uint16_t x, uint16_t y) {
     
         text_writeTextAtPoint(f_12x16, window->currentFile.name, 0, window->statusBar.node.height+5, CENTER);
     } else if (node_containsPoint((node_t *)&window->prev, x, y)) {
-        state_set(STATE_NAV);
-        nav_setup(window->currentFile);
-        ui_draw();
+        if (nav_setup(window->currentFile) == 0) {
+            state_set(STATE_NAV);
+            ui_draw();
+        }
         return;
     }
 }

@@ -35,7 +35,7 @@ int fat_init(fatFile_t *root);
 int fat_getPreviousFile(fatFile_t *dir, fatFile_t *next);
 int fat_getNextFile(fatFile_t *dir, fatFile_t *next);
 int fat_read(fatFile_t *f, uint8_t *buf, uint8_t len);
-void fat_error(fatStatus_t err);
+char* fat_error(fatStatus_t err);
 
 #endif
 

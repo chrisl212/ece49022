@@ -10,7 +10,7 @@ SE=arm-none-eabi-size
 SF=st-flash
 
 INCLUDE=-Isrc/ -Iinc/
-CFLAGS = -std=gnu99 -g -Wall -Wno-unused-variable
+CFLAGS = -std=gnu99 -g3 -Wall -Wno-unused-variable
 CFLAGS += -mlittle-endian -mthumb -mthumb-interwork -mcpu=cortex-m0
 CFLAGS += -fsingle-precision-constant --specs=nosys.specs -Wno-builtin-declaration-mismatch
 LDFLAGS = -lc -static -mcpu=cortex-m0 -mthumb

@@ -199,23 +199,19 @@ int sd_readSector(sdCard_t card, uint32_t addr, uint8_t *buf) {
     return (resp == 0x00) ? SD_OKAY : SD_READ_ERR;
 }
 
-void sd_error(sdStatus_t err) {
+char* sd_error(sdStatus_t err) {
     switch (err) {
         case SD_OKAY:
-//            ui_writeLine(0, "SD: no error");
-            break;
+            return "sd: no error";
         case SD_UNRECOGNIZED:
-//            ui_writeLine(0, "SD: unrecognized");
-            break;
+            return "sd: unrecognized";
         case SD_UNKNOWN_VERSION:
-//            ui_writeLine(0, "SD: version err");
-            break;
+            return "sd: unknown version";
         case SD_TIMEOUT:
-//            ui_writeLine(0, "SD: timeout");
-            break;
+            return "sd: timeout";
         case SD_READ_ERR:
-//            ui_writeLine(0, "SD: read err");
-            break;
+            return "sd: read error";
     }
+    return "sd: unknown error";
 }
 

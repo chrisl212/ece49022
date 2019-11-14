@@ -5,12 +5,13 @@
 #include "stm32f0xx.h"
 #include "ui/text/text.h"
 #include "fat/fat.h"
+#include "nav/i2c/i2c.h"
 
 int main(void) {
     state_setup();
     drive_setup();
     ui_setup();
-//  collision_setup();
+//    collision_setup();
     
     while (1) asm("wfi");
     return 0;
