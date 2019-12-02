@@ -24,12 +24,7 @@ void ui_setup(void) {
 
     ili9341_init();
 
-    if ((err = fat_init(&root)) != FAT_OK) {
-        state_set(STATE_ERR);
-        state_setErrorMessage(fat_error(err));
-        ui_draw();
-        return;
-    }
+    fat_init(&root);
     
     welcomeWindow = welcomeWindow_create();
     selectWindow = selectWindow_create(root);

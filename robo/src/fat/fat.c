@@ -23,14 +23,13 @@ struct {
 
 uint8_t buf[SECTOR];
 uint32_t lbaLast = 0xFFFFFFFF;
-static int sdError;
 
 static int _fat_readSector(sdCard_t card, uint32_t lba) {
     if (lba != lbaLast) {
         lbaLast = lba;
         return sd_readSector(card, lba, buf);
     }
-    return SD_OK;
+    return SD_OKAY;
 }
 
 static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
@@ -45,9 +44,12 @@ static uint32_t _combine(uint8_t bits, uint8_t *buf, uint16_t start) {
 }
 
 static int _readMBR(sdCard_t card) {
-    sdError = _fat_readSector(card, 0x0);
-    if (sdError != SD_OK) {
-        return FAT_SPI;
+    int status;
+
+    status = _fat_readSector(card, 0x0);
+    if (status != SD_OKAY) {
+        sd_error(status);
+        return FAT_MBR;
     }
 
     _partInfo.type = buf[450];
@@ -60,13 +62,16 @@ static int _readMBR(sdCard_t card) {
         return FAT_MBR;
     }
 
-    return FAT_OK;
+    return FAT_OKAY;
 }
 
 static int _readVolumeID(sdCard_t card) {
-    sdError = _fat_readSector(card, _partInfo.lba);
-    if (sdError != SD_OK) {
-        return FAT_SPI;
+    int status;
+
+    status = _fat_readSector(card, _partInfo.lba);
+    if (status != SD_OKAY) {
+        sd_error(status);
+        return FAT_VOLID;
     }
 
     _volumeID.bytesPerSector = _combine(16, buf, 0x0B);
@@ -81,23 +86,21 @@ static int _readVolumeID(sdCard_t card) {
     if (_volumeID.signature != 0xAA55) {
         return FAT_VOLID;
     }
-    return FAT_OK;
+    return FAT_OKAY;
 }
 
 int fat_init(fatFile_t *root) {
     int timeout = 0;
-    int s;
 
-    while ((sdError = sd_init(&root->card)) != SD_OK) {
-        if (++timeout == TIMEOUT) {
-            return FAT_SPI;
-        }
+    while (sd_init(&root->card) != SD_OKAY && timeout++ < TIMEOUT);
+    if (timeout == TIMEOUT) {
+        return FAT_TIMEOUT;
     }
-    if ((s = _readMBR(root->card)) != FAT_OK) {
-        return s;
+    if (_readMBR(root->card)) {
+        return FAT_MBR;
     }
-    if ((s = _readVolumeID(root->card)) != FAT_OK) {
-        return s;
+    if (_readVolumeID(root->card)) {
+        return FAT_VOLID;
     }
     root->name[0] = '/';
     root->name[1] = 0;
@@ -105,7 +108,7 @@ int fat_init(fatFile_t *root) {
     root->attrib = DIRECTORY;
     root->firstCluster = _volumeID.rootDirectoryCluster;
     root->size = 0;
-    return FAT_OK;
+    return FAT_OKAY;
 }
 
 static uint32_t _clusterToLBA(uint32_t cluster) {
@@ -178,7 +181,7 @@ int fat_getNextFile(fatFile_t *dir, fatFile_t *next) {
     next->size = _combine(32, entry, 0x1C);
     next->card = dir->card;
 
-    return FAT_OK;
+    return FAT_OKAY;
 }
 
 int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
@@ -198,9 +201,10 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
     }
     lba += sectorIdx;
 
-    sdError = _fat_readSector(f->card, lba);
-    if (sdError != SD_OK) {
-        return FAT_SPI;
+    //ui_writeFormat(1, "%d %d %d %d", byteIdx, sectorIdx, clusterIdx, lba);
+    status = _fat_readSector(f->card, lba);
+    if (status != SD_OKAY) {
+        return FAT_UNKNOWN;
     }
     for (i = 0; i < len; i++) {
         b[i] = buf[byteIdx++];
@@ -218,33 +222,36 @@ int fat_read(fatFile_t *f, uint8_t *b, uint8_t len) {
             } else {
                 lba += 1;
             }
-            sdError = _fat_readSector(f->card, lba);
-            if (sdError != SD_OK) {
-                return FAT_SPI;
+            status = _fat_readSector(f->card, lba);
+            if (status != SD_OKAY) {
+                return FAT_UNKNOWN;
             }
             byteIdx = 0;
         }
     }
-    return FAT_OK;
+    return FAT_OKAY;
 }
 
-char* fat_error(fatStatus_t err) {
+void fat_error(fatStatus_t err) {
     switch (err) {
-        case FAT_OK:
-            return "fat: no error";
+        case FAT_OKAY:
+            //ui_writeLine(0, "FAT: no error");
+            break;
         case FAT_MBR:
-            return "fat: invalid MBR";
+            //ui_writeLine(0, "FAT: invalid MBR");
+            break;
         case FAT_VOLID:
-            return "fat: invalid volId";
+            //ui_writeLine(0, "FAT: invalid VOL");
+            break;
         case FAT_EOF:
-            return "fat: eof";
+            //ui_writeLine(0, "FAT: eof");
+            break;
         case FAT_TIMEOUT:
-            return "fat: timeout";
+            //ui_writeLine(0, "FAT: timeout");
+            break;
         case FAT_UNKNOWN:
-            return "fat: unknown";
-        case FAT_SPI:
-            return sd_error(sdError);
+            //ui_writeLine(0, "FAT: unknown");
+            break;
     }
-    return "fat: unknown";
 }
 

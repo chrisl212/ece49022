@@ -5,5 +5,7 @@
 #include "battery/battery.h"
 #include "collision/collision.h"
 #include "touch/touch.h"
+#include "load/load.h"
+#include "servo/servo.h"
 
 #endif

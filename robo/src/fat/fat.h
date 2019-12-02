@@ -14,13 +14,12 @@
 #define RO (0x01)
 
 typedef enum {
-    FAT_OK,
+    FAT_OKAY,
     FAT_MBR,
     FAT_VOLID,
     FAT_EOF,
     FAT_TIMEOUT,
-    FAT_UNKNOWN,
-    FAT_SPI
+    FAT_UNKNOWN
 } fatStatus_t;
 
 typedef struct _fatFile {
@@ -36,7 +35,7 @@ int fat_init(fatFile_t *root);
 int fat_getPreviousFile(fatFile_t *dir, fatFile_t *next);
 int fat_getNextFile(fatFile_t *dir, fatFile_t *next);
 int fat_read(fatFile_t *f, uint8_t *buf, uint8_t len);
-char* fat_error(fatStatus_t err);
+void fat_error(fatStatus_t err);
 
 #endif
 

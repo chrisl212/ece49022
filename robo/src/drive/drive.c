@@ -6,7 +6,7 @@
 #include "stm32f0xx.h"
 #include "drive.h"
 
-#define MAX_SPEED (1000)
+#define MAX_SPEED (500)
 #define LIMIT (MAX_SPEED - 100)
 
 extern int16_t head;
@@ -29,19 +29,19 @@ static void _update_speed(void){
     if (motorOut.rDir){
         TIM1->CCR1 = motorOut.rPWM; //Right motor forward
         TIM1->CCR2 = 0;
-    } /*else{
+    } else{
         TIM1->CCR1 = 0;
         TIM1->CCR2 = motorOut.rPWM; //Right motor reverse
-    }*/
+    }
     if (motorOut.lDir){
         TIM1->CCR3 = motorOut.lPWM; //Left motor forward
         TIM1->CCR4 = 0;
-    }/*else{
+    }else{
         TIM1->CCR3 = 0;
         TIM1->CCR4 = motorOut.lPWM; //Left motor reverse
-    }*/
+    }
     if (collide) {
-    TIM1->CCR1 = TIM1->CCR2 = TIM1->CCR3 = TIM1->CCR4 = 0;
+        TIM1->CCR1 = TIM1->CCR2 = TIM1->CCR3 = TIM1->CCR4 = 0;
     }
 }
 
@@ -127,6 +127,7 @@ void drive_move(void) {
     int desiredHeading;
     int rOffset;
     int lOffset;
+    int error;
 
     //currentSpeed = _getCurrentSpeed(); //Get current speed from navigation controller
     //desiredSpeed = _getDesiredSpeed(); //Get desired speed from navigation controller
@@ -134,19 +135,44 @@ void drive_move(void) {
     desiredHeading = _getDesiredHeading() - 180; //Get desired heading from navigation controller
 
 //    _base_PWM(currentSpeed, desiredSpeed); //calculate new speed pwm
-    _head_PWM(currentHeading, desiredHeading); //calculate new heading pwm
+   // _head_PWM(currentHeading, desiredHeading); //calculate new heading pwm
+    
+    error = currentHeading - desiredHeading;
 
-    if (headPID.pwm < 0){
-        lOffset = headPID.pwm; //if heading offset is positive turn right
-        rOffset = 0;
-    } else {
-        rOffset = -headPID.pwm; //if heading offset is negative turn left
-        lOffset = 0;
+    if (error < -180) {
+        error += 360;
+    } else if (error > 180) {
+        error -= 360;
     }
-    motorOut.rPWM = speedPID.pwm + rOffset;
-    motorOut.lPWM = speedPID.pwm + lOffset;
-    motorOut.lDir = 1; //drive forward
-    motorOut.rDir = 1; //drive forward
+
+    if(error > 90 && error < -90){
+        if(error < 0){
+            motorOut.rPWM = speedPID.pwm/2;
+            motorOut.lPWM = speedPID.pwm/2;
+            motorOut.lDir = 0;
+            motorOut.rDir = 1;
+        }else{
+            motorOut.rPWM = speedPID.pwm/2;
+            motorOut.lPWM = speedPID.pwm/2;
+            motorOut.lDir = 1;
+            motorOut.rDir = 0;
+        }
+    }else{
+        _head_PWM(currentHeading, desiredHeading);
+        if (headPID.pwm < 0){
+            lOffset = headPID.pwm; //if heading offset is positive turn right
+            rOffset = 0;
+        } else {
+            rOffset = -headPID.pwm; //if heading offset is negative turn left
+            lOffset = 0;
+        }
+        
+        motorOut.rPWM = speedPID.pwm + rOffset;
+        motorOut.lPWM = speedPID.pwm + lOffset;
+        motorOut.lDir = 1; //drive forward
+        motorOut.rDir = 1; //drive forward
+    }
+
     _update_speed();
 }
 

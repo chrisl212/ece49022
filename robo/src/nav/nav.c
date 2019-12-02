@@ -10,18 +10,33 @@
 #include "sensors/sensors.h"
 
 #define SAMPLES (10)
+#define OFFSET (15)
 
 fatFile_t design;
 uint16_t initialHead, desiredHead;
 int16_t head, tmpHead;
-int16_t desiredX, desiredY;
+int8_t desiredX = OFFSET;
+int8_t desiredY = OFFSET;
 uint8_t avgCnt;
 
 void TIM14_IRQHandler(void) {
     uint8_t p;
 
     tmpHead += lsm9ds0_getHeading() - initialHead;
-
+/*
+    if (load_empty()) {
+        state_setErrorMessage("PAINT LOW!!!");
+        if (state_get() != STATE_ERR) {
+            state_set(STATE_ERR);
+            ui_draw();
+            drive_stop();
+        }
+        return;
+    } else if (state_get() == STATE_ERR) {
+        state_restore();
+        ui_draw();
+        drive_start();
+    }*/
 /*    
     if (battery_low() && state_get() != STATE_ERR) {
         state_set(STATE_ERR);
@@ -43,11 +58,13 @@ void TIM14_IRQHandler(void) {
         if (head < 0) {
             head += 360;
         }
-        text_writeFormatAtPoint(f_12x16, 0, 20, LEFT, "(%d, %d)     ", head, desiredHead);
         tmpHead = 0;
     }
-    nav_move(NULL, NULL, &p);
-    drive_move();
+    if (state_get() != STATE_ERR) {
+        nav_move(NULL, NULL, &p);
+        servo_on();
+        drive_move();
+    }
     TIM14->SR &= ~(TIM_SR_UIF);
 }
 
@@ -63,28 +80,43 @@ int nav_setup(fatFile_t file) {
         return s;
     }
 
+    NVIC_SetPriority(USART2_IRQn, 0);
+    NVIC_SetPriority(TIM14_IRQn, 4);
     RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
     TIM14->PSC = 4800 - 1;
-    TIM14->ARR = 100 - 1;
+    TIM14->ARR = 10 - 1;
     TIM14->DIER |= TIM_DIER_UIE;
     NVIC->ISER[0] |= 1 << TIM14_IRQn;
     TIM14->CR1 |= TIM_CR1_CEN;
 
     initialHead = lsm9ds0_getHeading();
     battery_setup();
+    load_init();
+    servo_init();
     return 0;
 }
 
-static int _getNextCoords(uint16_t *x, uint16_t *y, uint8_t *p) {
+static int _getNextCoords(int8_t *x, int8_t *y, uint8_t *p) {
     uint8_t buf[12];
+    uint16_t tmpX, tmpY;
     int status;
 
     status = fat_read(&design, buf, 12);
-    *x = ((buf[1] << 8) | buf[0]);
-    *y = 1000 - ((buf[5] << 8) | buf[4]);
+    tmpX = ((buf[1] << 8) | buf[0]);
+    tmpY = 1000 - ((buf[5] << 8) | buf[4]);
     if (p) {
         *p = (buf[9] << 8) | buf[8];
     }
+    tmpX /= 8;
+    tmpY /= 8;
+    if (tmpX > 255) {
+        tmpX = 255;
+    }
+    if (tmpY > 255) {
+        tmpY = 255;
+    }
+    *x = tmpX;
+    *y = tmpY;
     return status;
 }
 
@@ -93,16 +125,22 @@ static int _abs(int x) {
 }
 
 void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
-    uint16_t currentX, currentY, currentHead, nextX, nextY;
+    int8_t currentX, currentY, nextX, nextY;
+    uint16_t currentHead;
     int16_t nextHead;
     int status;
 
     lps_getCoords(&currentX, &currentY, &currentHead);
-    text_writeFormatAtPoint(f_12x16, 0, 140, LEFT, "(%d, %d)     ", currentX, currentY);
-    if (_abs(desiredHead - head) < 10) {//_abs(currentX - desiredX) < 10 && _abs(currentY - desiredY) < 10) {
+    if (_abs(currentX - desiredX) < 10 && _abs(currentY - desiredY) < 10) {
         status = _getNextCoords(&nextX, &nextY, paint);
-        desiredX = nextX;
-        desiredY = nextY;
+        if (desiredX < 127-OFFSET) {
+            desiredX += OFFSET;
+        }
+        if (desiredY < 127-OFFSET) {
+            desiredY += OFFSET;
+        }
+        nextX = desiredX;
+        nextY = desiredY;
     } else {
         nextX = desiredX;
         nextY = desiredY;
@@ -112,6 +150,7 @@ void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
     if (nextHead < 0) {
         nextHead += 360;
     }
+    nextHead = 360 - nextHead;
 
     if (angle) {
         *angle = nextHead;
@@ -123,6 +162,11 @@ void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
     if (status == FAT_EOF) {
         state_set(STATE_DONE);
         ui_draw();
+    }
+
+    if (state_get() != STATE_ERR) {
+        text_writeFormatAtPoint(f_12x16, 0, 20, LEFT, "(%d, %d) => (%d, %d)          ", currentX, currentY, desiredX, desiredY);
+        text_writeFormatAtPoint(f_12x16, 0, 50, LEFT, "%d deg => %d deg    ", head, nextHead);
     }
 
     desiredHead = nextHead;
