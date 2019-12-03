@@ -5,6 +5,7 @@
 #include "lps/lps.h"
 #include "state/state.h"
 #include "ui/ui.h"
+#include "ui/stack/stack.h"
 #include "math/math.h"
 #include "drive/drive.h"
 #include "sensors/sensors.h"
@@ -13,16 +14,15 @@
 #define OFFSET (15)
 
 fatFile_t design;
-uint16_t initialHead, desiredHead;
-int16_t head, tmpHead;
-int8_t desiredX = OFFSET;
-int8_t desiredY = OFFSET;
+uint16_t initialHead = 0, desiredHead;
+int16_t head;
+uint16_t desiredX = OFFSET;
+uint16_t desiredY = OFFSET;
 uint8_t avgCnt;
+int lastPoint = 0;
 
 void TIM14_IRQHandler(void) {
     uint8_t p;
-
-    tmpHead += lsm9ds0_getHeading() - initialHead;
 /*
     if (load_empty()) {
         state_setErrorMessage("PAINT LOW!!!");
@@ -51,15 +51,6 @@ void TIM14_IRQHandler(void) {
     } else if (state_get() == STATE_ERR) {
         return;
     } */
-
-    if (++avgCnt == SAMPLES) {
-        head = tmpHead/SAMPLES;
-        avgCnt = 0;
-        if (head < 0) {
-            head += 360;
-        }
-        tmpHead = 0;
-    }
     if (state_get() != STATE_ERR) {
         nav_move(NULL, NULL, &p);
         servo_on();
@@ -73,12 +64,12 @@ int nav_setup(fatFile_t file) {
 
     design = file;
     lps_setup();
-    if ((s = lsm9ds0_setup()) != LSM9DS0_OK) {
+    /*if ((s = lsm9ds0_setup()) != LSM9DS0_OK) {
         state_set(STATE_ERR);
         state_setErrorMessage(lsm9ds0_error(s));
         ui_draw();
         return s;
-    }
+    }*/
 
     NVIC_SetPriority(USART2_IRQn, 0);
     NVIC_SetPriority(TIM14_IRQn, 4);
@@ -89,32 +80,28 @@ int nav_setup(fatFile_t file) {
     NVIC->ISER[0] |= 1 << TIM14_IRQn;
     TIM14->CR1 |= TIM_CR1_CEN;
 
-    initialHead = lsm9ds0_getHeading();
+   // initialHead = lsm9ds0_getHeading();
     battery_setup();
     load_init();
     servo_init();
+	while (initialHead == 0)
+		lps_getCoords(NULL, NULL, &initialHead);
     return 0;
 }
 
-static int _getNextCoords(int8_t *x, int8_t *y, uint8_t *p) {
-    uint8_t buf[12];
+static int _getNextCoords(uint16_t *x, uint16_t *y, uint8_t *p) {
+    uint8_t buff[12];
     uint16_t tmpX, tmpY;
     int status;
 
-    status = fat_read(&design, buf, 12);
-    tmpX = ((buf[1] << 8) | buf[0]);
-    tmpY = 1000 - ((buf[5] << 8) | buf[4]);
+    status = fat_read(&design, buff, 12);
+    tmpX = ((buff[1] << 8) | buff[0]);
+    tmpY = 1000 - ((buff[5] << 8) | buff[4]);
     if (p) {
-        *p = (buf[9] << 8) | buf[8];
+        *p = (buff[9] << 8) | buff[8];
     }
     tmpX /= 8;
     tmpY /= 8;
-    if (tmpX > 255) {
-        tmpX = 255;
-    }
-    if (tmpY > 255) {
-        tmpY = 255;
-    }
     *x = tmpX;
     *y = tmpY;
     return status;
@@ -125,22 +112,29 @@ static int _abs(int x) {
 }
 
 void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
-    int8_t currentX, currentY, nextX, nextY;
-    uint16_t currentHead;
+    int16_t currentX, currentY;
+	uint16_t currentHead;
+    uint16_t nextX, nextY;
     int16_t nextHead;
     int status;
 
     lps_getCoords(&currentX, &currentY, &currentHead);
-    if (_abs(currentX - desiredX) < 10 && _abs(currentY - desiredY) < 10) {
+	head = currentHead - initialHead;
+	if (head < 0) {
+		head += 360;
+	}
+    if (_abs(currentX - desiredX) < 20 && _abs(currentY - desiredY) < 20) {
+		if (lastPoint) {
+			state_set(STATE_DONE);
+			ui_draw();
+			drive_stop();
+			TIM14->CR1 &= ~(TIM_CR1_CEN);
+			return;
+		}
+		stack_toggle(STACK_RED);
         status = _getNextCoords(&nextX, &nextY, paint);
-        if (desiredX < 127-OFFSET) {
-            desiredX += OFFSET;
-        }
-        if (desiredY < 127-OFFSET) {
-            desiredY += OFFSET;
-        }
-        nextX = desiredX;
-        nextY = desiredY;
+		desiredX = nextX;
+		desiredY = nextY;
     } else {
         nextX = desiredX;
         nextY = desiredY;
@@ -160,17 +154,14 @@ void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
     }
 
     if (status == FAT_EOF) {
-        state_set(STATE_DONE);
-        ui_draw();
+		lastPoint = 1;
     }
 
     if (state_get() != STATE_ERR) {
         text_writeFormatAtPoint(f_12x16, 0, 20, LEFT, "(%d, %d) => (%d, %d)          ", currentX, currentY, desiredX, desiredY);
-        text_writeFormatAtPoint(f_12x16, 0, 50, LEFT, "%d deg => %d deg    ", head, nextHead);
-    }
+		text_writeFormatAtPoint(f_12x16, 0, 50, LEFT, "%d deg => %d deg    ", head, nextHead);
+	} 
 
     desiredHead = nextHead;
-    //debug
-    //lps_setCoords(nextX, nextY, nextHead);
 }
 

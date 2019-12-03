@@ -4,14 +4,8 @@
 
 #define TX (14)
 #define RX (15)
-
-int8_t currentX = 0;
-int8_t currentY = 0;
-int16_t currentHead = 0;
-int8_t nextX, nextY;
-uint16_t nextHead;
-int byte = 0;
-int8_t buf[4];
+	
+static uint8_t buf[8];
 
 void lps_setup(void) {
     //PA15 AF1 = RX
@@ -34,27 +28,19 @@ void lps_setup(void) {
     USART2->CR1 |= USART_CR1_RE + USART_CR1_UE;
 }
 
-void lps_getCoords(int8_t *x, int8_t *y, uint16_t *head) {
-    int i, len;
+void lps_getCoords(int16_t *x, int16_t *y, uint16_t *head) {
+    int i = 0;
+	int len;
 
     len = sizeof(buf)/sizeof(buf[0]);
-    for (i = 0; i < len; i++) {
-        if (buf[i] == -2 && i+1 < len && x) {
-            *x = buf[i+1];
-        }
-        if (buf[i] == -1 && i+1 < len && y) {
-            *y = buf[i+1];
-        }
-    }
-    if (head) {
-        *head = currentHead;
-    }
-}
-
-//debug only
-void lps_setCoords(uint16_t x, uint16_t y, uint16_t head) {
-    currentX = x;
-    currentY = y;
-    currentHead = head;
+	if (buf[i] == 0x7F && buf[i+1] == 0xFF) {
+		*x = *y = *head = 0;
+		*x |= buf[i+2] << 8;
+		*x |= buf[i+3];
+		*y |= buf[i+4] << 8;
+		*y |= buf[i+5];
+		*head |= buf[i+6] << 8;
+		*head |= buf[i+7];
+	}
 }
 

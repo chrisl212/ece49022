@@ -6,9 +6,9 @@
 #include "stm32f0xx.h"
 #include "drive.h"
 
-#define MAX_SPEED (500)
+#define MAX_SPEED (400)
 #define LIMIT (MAX_SPEED - 100)
-
+#define TURN_SPEED (200)
 extern int16_t head;
 extern int16_t desiredHead;
 int collide = 0;
@@ -89,14 +89,14 @@ static void _head_PWM(int currentHeading, int desiredHeading){
     int error;
 
     error = desiredHeading - currentHeading;
+    headPID.integral = headPID.integral + error;
     if (error < -180) {
     error += 360;
     } else if (error > 180) {
     error -= 360;
     }
-    headPID.integral = headPID.integral + error;
 
-    headPID.pwm = ((headPID.Kp / 1000.0) * error) + ((headPID.Ki / 1000.0) * headPID.integral / headPID.cnt++) + ((headPID.Kd / 1000.0) * (error - headPID.lastError)); //divide by 1000 to work with ints
+    headPID.pwm = ((headPID.Kp / 1000.0) * error) + ((headPID.Ki / 1000000.0) * headPID.integral/* / headPID.cnt++*/) + ((headPID.Kd / 1000.0) * (error - headPID.lastError)); //divide by 1000 to work with ints
     headPID.pwm *= 10;
 
     if (headPID.pwm > LIMIT) {
@@ -145,15 +145,16 @@ void drive_move(void) {
         error -= 360;
     }
 
-    if(error > 90 && error < -90){
+    if(error > 85 && error < -85){
+
         if(error < 0){
-            motorOut.rPWM = speedPID.pwm/2;
-            motorOut.lPWM = speedPID.pwm/2;
+            motorOut.rPWM = TURN_SPEED;
+            motorOut.lPWM = TURN_SPEED;
             motorOut.lDir = 0;
             motorOut.rDir = 1;
         }else{
-            motorOut.rPWM = speedPID.pwm/2;
-            motorOut.lPWM = speedPID.pwm/2;
+            motorOut.rPWM = TURN_SPEED;
+            motorOut.lPWM = TURN_SPEED;
             motorOut.lDir = 1;
             motorOut.rDir = 0;
         }
@@ -195,12 +196,12 @@ void drive_setup(void) {
     speedPID.pwm = MAX_SPEED;
 
     //Mess with these values
-    headPID.Kp = 900; //Kp = headPID.Kp / 1000
+    headPID.Kp = 3000; //Kp = headPID.Kp / 1000 initially set to 9
     headPID.integral = 0;
     headPID.cnt = 0;
     headPID.lastError = 0;
-    headPID.Ki = 100; //Kp = headPID.Ki / 1000
-    headPID.Kd = 1500; //Kp = headPID.Ki / 1000
+    headPID.Ki = 0; //Kp = headPID.Ki / 1000 initially set to 100
+    headPID.Kd = 0; //Kp = headPID.Ki / 1000 initially set to 1500
     headPID.pwm = 0;
 
     //enable motor driver

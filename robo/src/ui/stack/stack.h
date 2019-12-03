@@ -10,6 +10,7 @@ typedef enum {
 void stack_init(void);
 void stack_on(stackLight_t light);
 void stack_off(stackLight_t light);
+void stack_toggle(stackLight_t light);
 void buzzer_on(void);
 void buzzer_off(void);
 

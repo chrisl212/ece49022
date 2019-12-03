@@ -123,6 +123,10 @@ int lsm9ds0_setup(void) {
     if (lsm9ds0_write8(SAD_XM, CTRL_REG5_XM, 0xF0) < 0) {
         return LSM9DS0_I2C;
     }
+    
+	if (lsm9ds0_write8(SAD_XM, CTRL_REG6_XM, 0x60) < 0) {
+        return LSM9DS0_I2C;
+    }
     if (lsm9ds0_getGyroID() != 0xD4 || lsm9ds0_getAccelID() != 0x49)
         return LSM9DS0_ID;
 

@@ -43,6 +43,20 @@ void stack_on(stackLight_t light) {
     }
 }
 
+void stack_toggle(stackLight_t light) {
+    switch (light) {
+        case STACK_GRN:
+            GPIOC->ODR ^= 1 << GRN;
+            break;
+        case STACK_YEL:
+            GPIOC->ODR ^= 1 << YEL;
+            break;
+        case STACK_RED:
+            GPIOC->ODR ^= 1 << RED;
+            break;
+    }
+}
+
 void buzzer_on(void) {
     GPIOC->ODR |= 1 << BUZ;
 }
