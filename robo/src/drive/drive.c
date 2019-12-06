@@ -145,9 +145,8 @@ void drive_move(void) {
         error -= 360;
     }
 
-    if(error > 85 && error < -85){
-
-        if(error < 0){
+    if(error > 85 || error < -85){
+        if(error > 0){
             motorOut.rPWM = TURN_SPEED;
             motorOut.lPWM = TURN_SPEED;
             motorOut.lDir = 0;
@@ -196,7 +195,7 @@ void drive_setup(void) {
     speedPID.pwm = MAX_SPEED;
 
     //Mess with these values
-    headPID.Kp = 3000; //Kp = headPID.Kp / 1000 initially set to 9
+    headPID.Kp = 900; //Kp = headPID.Kp / 1000 initially set to 9
     headPID.integral = 0;
     headPID.cnt = 0;
     headPID.lastError = 0;

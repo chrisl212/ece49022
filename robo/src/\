@@ -9,8 +9,8 @@ void battery_setup(void) {
     RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
     RCC->CR2 |= RCC_CR2_HSI14ON;
 
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    GPIOA->MODER |= (0x3 << (2*0));
+    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+    GPIOB->MODER |= (0x3 << (2*0));
 
     ADC1->CR |= ADC_CR_ADEN;
 }
@@ -20,14 +20,14 @@ static uint32_t sum;
 static int prev;
 
 int battery_low(void) {
-    ADC1->CHSELR |= 0x1 << 0; //PA0
+    ADC1->CHSELR |= 0x1 << 8; //PA0
     while (!(ADC1->ISR & ADC_ISR_ADRDY));
     ADC1->CR |= ADC_CR_ADSTART;
     while (!(ADC1->ISR & ADC_ISR_EOC));
     sum += ADC1->DR;
     if (++cnt == AVG) {
         sum /= cnt;
-        if (sum < 10) {
+        if (sum < 2000) {
             sum = 0;
             cnt = 0;
             prev = 1;

@@ -12,6 +12,7 @@
 
 #define SAMPLES (10)
 #define OFFSET (15)
+#define TEST (11)
 
 fatFile_t design;
 uint16_t initialHead = 0, desiredHead;
@@ -23,37 +24,30 @@ int lastPoint = 0;
 
 void TIM14_IRQHandler(void) {
     uint8_t p;
-/*
+
     if (load_empty()) {
         state_setErrorMessage("PAINT LOW!!!");
         if (state_get() != STATE_ERR) {
             state_set(STATE_ERR);
             ui_draw();
-            drive_stop();
         }
+		GPIOB->ODR |= (1 << TEST);
+	    drive_stop();
+		drive_move();
+		GPIOB->ODR &= ~(1 << TEST);
         return;
     } else if (state_get() == STATE_ERR) {
         state_restore();
         ui_draw();
         drive_start();
-    }*/
-/*    
-    if (battery_low() && state_get() != STATE_ERR) {
-        state_set(STATE_ERR);
-        state_setErrorMessage("BATTERY LOW!!!");
-        ui_draw();
-        drive_stop();
-        return;
-    } else if (!battery_low() && state_get() == STATE_ERR) {
-        state_restore();
-        ui_draw();
-        drive_start();
-    } else if (state_get() == STATE_ERR) {
-        return;
-    } */
+    } 
     if (state_get() != STATE_ERR) {
         nav_move(NULL, NULL, &p);
-        servo_on();
+		if (p) {
+			servo_on();
+		} else {
+			servo_off();
+		}
         drive_move();
     }
     TIM14->SR &= ~(TIM_SR_UIF);
@@ -64,12 +58,6 @@ int nav_setup(fatFile_t file) {
 
     design = file;
     lps_setup();
-    /*if ((s = lsm9ds0_setup()) != LSM9DS0_OK) {
-        state_set(STATE_ERR);
-        state_setErrorMessage(lsm9ds0_error(s));
-        ui_draw();
-        return s;
-    }*/
 
     NVIC_SetPriority(USART2_IRQn, 0);
     NVIC_SetPriority(TIM14_IRQn, 4);
@@ -80,8 +68,6 @@ int nav_setup(fatFile_t file) {
     NVIC->ISER[0] |= 1 << TIM14_IRQn;
     TIM14->CR1 |= TIM_CR1_CEN;
 
-   // initialHead = lsm9ds0_getHeading();
-    battery_setup();
     load_init();
     servo_init();
 	while (initialHead == 0)
@@ -100,8 +86,8 @@ static int _getNextCoords(uint16_t *x, uint16_t *y, uint8_t *p) {
     if (p) {
         *p = (buff[9] << 8) | buff[8];
     }
-    tmpX /= 8;
-    tmpY /= 8;
+    tmpX /= 10;
+    tmpY /= 10;
     *x = tmpX;
     *y = tmpY;
     return status;
@@ -124,10 +110,12 @@ void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
 		head += 360;
 	}
     if (_abs(currentX - desiredX) < 20 && _abs(currentY - desiredY) < 20) {
+		headPID.integral = 0;
 		if (lastPoint) {
 			state_set(STATE_DONE);
 			ui_draw();
 			drive_stop();
+			servo_off();
 			TIM14->CR1 &= ~(TIM_CR1_CEN);
 			return;
 		}
@@ -158,8 +146,8 @@ void nav_move(uint16_t *angle, uint8_t *speed, uint8_t *paint) {
     }
 
     if (state_get() != STATE_ERR) {
-        text_writeFormatAtPoint(f_12x16, 0, 20, LEFT, "(%d, %d) => (%d, %d)          ", currentX, currentY, desiredX, desiredY);
-		text_writeFormatAtPoint(f_12x16, 0, 50, LEFT, "%d deg => %d deg    ", head, nextHead);
+        //text_writeFormatAtPoint(f_12x16, 0, 20, LEFT, "(%d, %d) => (%d, %d)          ", currentX, currentY, desiredX, desiredY);
+		//text_writeFormatAtPoint(f_12x16, 0, 50, LEFT, "%d deg => %d deg    ", head, nextHead);
 	} 
 
     desiredHead = nextHead;

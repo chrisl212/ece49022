@@ -22,5 +22,5 @@ int load_empty(void) {
         while(!(ADC1->ISR & ADC_ISR_EOC));
         data += ADC1->DR;
     }
-    return ((data / 10) < 1500);
+    return ((data / 10) < 1000);
 }
